@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AgriSense — Smart Farm Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --soil:    #3d2510;
+  --earth:   #5a3c1c;
+  --grass:   #2d5a1b;
+  --leaf:    #3d7a26;
+  --sprout:  #5aaa38;
+  --glow:    #7ecc55;
+  --sky:     #a8d878;
+  --amber:   #e8a020;
+  --danger:  #e05030;
+  --water:   #3a8acc;
+  --mist:    #c8e8b0;
+  --cream:   #f4f0e8;
+  --dark:    #111810;
+  --mid:     #1e2a18;
+  --card:    #192414;
+  --border:  rgba(90,170,56,0.18);
+  --text:    #e8f0e0;
+  --sub:     rgba(200,232,176,0.6);
+  --r:       14px;
+  --r-sm:    8px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  background: var(--dark);
+  color: var(--text);
+  font-family: 'Sora', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.hindi { font-family: 'Noto Sans Devanagari', 'Sora', sans-serif; }
+
+/* ── SCREENS ── */
+.screen { display:none; min-height:100vh; flex-direction:column; }
+.screen.active { display:flex; }
+
+/* ── LOGIN ── */
+#loginScreen {
+  background: linear-gradient(160deg, #0d1a08 0%, #1a3010 50%, #0a1206 100%);
+  align-items: center; justify-content: center; padding: 32px 20px;
+  position: relative; overflow: hidden;
+}
+#loginScreen::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(90,170,56,.12) 0%, transparent 70%);
+}
+.login-logo { text-align:center; margin-bottom:36px; }
+.logo-icon {
+  width:90px; height:90px; background:linear-gradient(135deg,#3d7a26,#5aaa38);
+  border-radius:24px; display:flex; align-items:center; justify-content:center;
+  font-size:42px; margin:0 auto 16px; box-shadow:0 8px 32px rgba(90,170,56,.35);
+}
+.logo-title { font-size:28px; font-weight:700; color:var(--glow); letter-spacing:-0.5px; }
+.logo-sub { font-size:13px; color:var(--sub); margin-top:4px; }
+
+.lang-select { margin-bottom:28px; text-align:center; }
+.lang-label { font-size:12px; color:var(--sub); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; }
+.lang-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; max-width:320px; margin:0 auto; }
+.lang-btn {
+  padding:10px 6px; background:rgba(90,170,56,.08); border:1px solid var(--border);
+  border-radius:var(--r-sm); color:var(--sub); font-size:12px; font-family:inherit;
+  cursor:pointer; transition:all .2s; text-align:center;
+}
+.lang-btn.active, .lang-btn:hover {
+  background:rgba(90,170,56,.2); border-color:var(--sprout); color:var(--glow);
+}
+.lang-native { display:block; font-size:15px; font-weight:600; margin-bottom:2px; }
+
+.login-card {
+  background:rgba(25,36,20,.9); border:1px solid var(--border);
+  border-radius:var(--r); padding:28px 24px; width:100%; max-width:360px;
+  backdrop-filter:blur(12px);
+}
+.form-group { margin-bottom:18px; }
+.form-label { font-size:12px; color:var(--sub); text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px; display:block; }
+.form-input {
+  width:100%; padding:14px 16px; background:rgba(0,0,0,.3);
+  border:1px solid var(--border); border-radius:var(--r-sm);
+  color:var(--text); font-size:16px; font-family:inherit; outline:none;
+  transition:border-color .2s;
+}
+.form-input:focus { border-color:var(--sprout); }
+.form-input::placeholder { color:rgba(200,232,176,.3); }
+
+.btn-primary {
+  width:100%; padding:16px; background:linear-gradient(135deg,var(--leaf),var(--sprout));
+  border:none; border-radius:var(--r-sm); color:#fff; font-size:16px; font-weight:600;
+  font-family:inherit; cursor:pointer; transition:all .2s; letter-spacing:.3px;
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(90,170,56,.4); }
+.btn-primary:active { transform:translateY(0); }
+.demo-btn {
+  width:100%; margin-top:12px; padding:12px; background:transparent;
+  border:1px solid var(--border); border-radius:var(--r-sm); color:var(--sub);
+  font-size:14px; font-family:inherit; cursor:pointer; transition:all .2s;
+}
+.demo-btn:hover { border-color:var(--sprout); color:var(--glow); }
+
+/* ── MAIN APP ── */
+#appScreen { background:var(--dark); }
+
+/* Top bar */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px; background:var(--mid);
+  border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;
+}
+.topbar-left { display:flex; align-items:center; gap:12px; }
+.topbar-logo { font-size:18px; font-weight:700; color:var(--glow); }
+.topbar-farm { font-size:11px; color:var(--sub); }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.notif-btn {
+  position:relative; width:40px; height:40px; background:rgba(90,170,56,.1);
+  border:1px solid var(--border); border-radius:10px; display:flex; align-items:center;
+  justify-content:center; cursor:pointer; font-size:18px; color:var(--sub);
+  transition:all .2s;
+}
+.notif-btn:hover { background:rgba(90,170,56,.2); color:var(--glow); }
+.notif-badge {
+  position:absolute; top:-5px; right:-5px; width:18px; height:18px;
+  background:var(--danger); border-radius:50%; font-size:10px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; color:#fff;
+}
+.avatar {
+  width:40px; height:40px; background:linear-gradient(135deg,var(--grass),var(--leaf));
+  border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-size:18px; cursor:pointer; font-weight:700; color:#fff;
+}
+
+/* Nav tabs */
+.nav-tabs {
+  display:flex; background:var(--mid); border-bottom:1px solid var(--border);
+  overflow-x:auto; scrollbar-width:none;
+}
+.nav-tabs::-webkit-scrollbar { display:none; }
+.nav-tab {
+  flex:1; min-width:64px; padding:12px 8px; text-align:center; cursor:pointer;
+  border-bottom:2px solid transparent; color:var(--sub); font-size:11px;
+  font-weight:500; transition:all .2s; white-space:nowrap; font-family:inherit;
+  background:none; border-top:none; border-left:none; border-right:none;
+}
+.nav-tab .tab-icon { font-size:20px; display:block; margin-bottom:2px; }
+.nav-tab.active { color:var(--glow); border-bottom-color:var(--sprout); }
+
+/* Content panels */
+.panel { display:none; flex:1; overflow-y:auto; padding:20px; }
+.panel.active { display:block; }
+
+/* ── DASHBOARD ── */
+.weather-strip {
+  background:linear-gradient(135deg,rgba(58,138,204,.2),rgba(45,90,27,.2));
+  border:1px solid rgba(58,138,204,.25); border-radius:var(--r);
+  padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; gap:16px;
+}
+.weather-icon { font-size:36px; }
+.weather-info { flex:1; }
+.weather-loc { font-size:11px; color:var(--sub); margin-bottom:2px; }
+.weather-temp { font-size:22px; font-weight:700; color:var(--water); }
+.weather-desc { font-size:11px; color:var(--sub); }
+.weather-extra { text-align:right; }
+.weather-humidity { font-size:12px; color:var(--sub); }
+.weather-rain { font-size:11px; color:var(--water); margin-top:2px; }
+
+.section-title {
+  font-size:13px; font-weight:600; color:var(--sub); text-transform:uppercase;
+  letter-spacing:1px; margin-bottom:14px; display:flex; align-items:center; gap:8px;
+}
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* Metric grid */
+.metric-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; }
+.metric-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px; cursor:pointer; transition:all .25s; position:relative; overflow:hidden;
+}
+.metric-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:var(--r) var(--r) 0 0;
+}
+.metric-card.moisture::before { background:linear-gradient(90deg,var(--water),#6ab8f0); }
+.metric-card.npk::before     { background:linear-gradient(90deg,var(--amber),#f0c040); }
+.metric-card.ph::before       { background:linear-gradient(90deg,#9b55e8,#c088ff); }
+.metric-card.temp::before     { background:linear-gradient(90deg,var(--danger),#f07050); }
+.metric-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.3); }
+.metric-icon { font-size:26px; margin-bottom:8px; }
+.metric-label { font-size:11px; color:var(--sub); text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px; }
+.metric-val { font-size:30px; font-weight:700; line-height:1; }
+.metric-val .unit { font-size:14px; font-weight:400; color:var(--sub); margin-left:2px; }
+.metric-status { margin-top:8px; display:flex; align-items:center; gap:5px; }
+.status-dot { width:7px; height:7px; border-radius:50%; }
+.status-dot.ok    { background:var(--sprout); box-shadow:0 0 6px var(--sprout); }
+.status-dot.warn  { background:var(--amber);  box-shadow:0 0 6px var(--amber); }
+.status-dot.bad   { background:var(--danger); box-shadow:0 0 6px var(--danger); }
+.status-txt { font-size:11px; color:var(--sub); }
+.metric-bar { height:4px; background:rgba(255,255,255,.08); border-radius:2px; margin-top:10px; }
+.metric-fill { height:100%; border-radius:2px; transition:width 1.5s ease; }
+.metric-card.moisture .metric-val { color:#6ab8f0; }
+.metric-card.npk     .metric-val { color:var(--amber); }
+.metric-card.ph      .metric-val { color:#c088ff; }
+.metric-card.temp    .metric-val { color:#f07050; }
+.metric-card.moisture .metric-fill { background:linear-gradient(90deg,var(--water),#6ab8f0); }
+.metric-card.npk     .metric-fill { background:linear-gradient(90deg,var(--amber),#f0c040); width:22%!important; }
+.metric-card.ph      .metric-fill { background:linear-gradient(90deg,#9b55e8,#c088ff); width:68%!important; }
+.metric-card.temp    .metric-fill { background:linear-gradient(90deg,var(--danger),#f07050); width:55%!important; }
+
+/* AI Recommendation strip */
+.ai-strip {
+  background:linear-gradient(135deg,rgba(155,85,232,.15),rgba(90,170,56,.1));
+  border:1px solid rgba(155,85,232,.3); border-radius:var(--r);
+  padding:16px 18px; margin-bottom:20px; display:flex; gap:14px; align-items:flex-start;
+}
+.ai-avatar { font-size:28px; flex-shrink:0; }
+.ai-content { flex:1; }
+.ai-label { font-size:10px; color:rgba(155,85,232,.8); text-transform:uppercase; letter-spacing:.8px; margin-bottom:4px; }
+.ai-msg { font-size:14px; line-height:1.6; color:var(--text); }
+.ai-action {
+  margin-top:10px; display:inline-block; padding:7px 14px;
+  background:rgba(155,85,232,.2); border:1px solid rgba(155,85,232,.4);
+  border-radius:6px; font-size:12px; color:#c088ff; cursor:pointer;
+  transition:all .2s;
+}
+.ai-action:hover { background:rgba(155,85,232,.35); }
+
+/* Crop timer */
+.crop-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:18px; margin-bottom:20px;
+}
+.crop-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.crop-name { font-size:18px; font-weight:600; }
+.crop-badge { padding:4px 12px; background:rgba(90,170,56,.2); border:1px solid rgba(90,170,56,.4); border-radius:20px; font-size:11px; color:var(--sprout); }
+.harvest-progress { position:relative; }
+.harvest-bar { height:12px; background:rgba(255,255,255,.06); border-radius:6px; overflow:hidden; }
+.harvest-fill { height:100%; background:linear-gradient(90deg,var(--grass),var(--sprout),var(--sky)); width:62%; border-radius:6px; }
+.harvest-labels { display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:var(--sub); }
+.harvest-days { text-align:center; margin-top:12px; }
+.harvest-num { font-size:36px; font-weight:700; color:var(--glow); }
+.harvest-sub { font-size:12px; color:var(--sub); }
+
+/* ── SENSORS PANEL ── */
+.sensor-list { display:flex; flex-direction:column; gap:14px; }
+.sensor-row {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:18px; display:flex; align-items:center; gap:16px;
+}
+.sensor-icon-wrap { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+.sensor-icon-wrap.blue   { background:rgba(58,138,204,.15); }
+.sensor-icon-wrap.amber  { background:rgba(232,160,32,.15); }
+.sensor-icon-wrap.purple { background:rgba(155,85,232,.15); }
+.sensor-icon-wrap.red    { background:rgba(224,80,48,.15); }
+.sensor-icon-wrap.green  { background:rgba(90,170,56,.15); }
+.sensor-body { flex:1; }
+.sensor-name { font-size:15px; font-weight:600; margin-bottom:2px; }
+.sensor-type { font-size:11px; color:var(--sub); margin-bottom:8px; }
+.sensor-reading { font-size:28px; font-weight:700; }
+.sensor-scale { display:flex; align-items:center; gap:8px; margin-top:8px; }
+.scale-bar { flex:1; height:6px; background:rgba(255,255,255,.07); border-radius:3px; overflow:hidden; }
+.scale-fill { height:100%; border-radius:3px; }
+.scale-val { font-size:11px; color:var(--sub); min-width:36px; text-align:right; }
+.sensor-advice { margin-top:10px; padding:8px 12px; background:rgba(255,255,255,.04); border-radius:var(--r-sm); font-size:12px; color:var(--sub); line-height:1.5; }
+
+/* ── NOTIFICATIONS ── */
+.notif-filters { display:flex; gap:8px; margin-bottom:18px; overflow-x:auto; padding-bottom:4px; }
+.notif-filter {
+  padding:6px 14px; border-radius:20px; font-size:12px; font-family:inherit;
+  background:rgba(90,170,56,.08); border:1px solid var(--border); color:var(--sub);
+  cursor:pointer; white-space:nowrap; transition:all .2s;
+}
+.notif-filter.active { background:rgba(90,170,56,.2); border-color:var(--sprout); color:var(--glow); }
+.notif-list { display:flex; flex-direction:column; gap:10px; }
+.notif-item {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px 18px; display:flex; gap:14px; align-items:flex-start;
+  cursor:pointer; transition:all .2s;
+}
+.notif-item:hover { border-color:rgba(90,170,56,.35); }
+.notif-item.unread { border-left:3px solid var(--sprout); }
+.notif-item.warn   { border-left:3px solid var(--amber); }
+.notif-item.danger { border-left:3px solid var(--danger); }
+.notif-emoji { font-size:24px; flex-shrink:0; }
+.notif-body { flex:1; }
+.notif-title { font-size:14px; font-weight:600; margin-bottom:3px; }
+.notif-desc { font-size:12px; color:var(--sub); line-height:1.5; }
+.notif-time { font-size:10px; color:rgba(200,232,176,.35); margin-top:4px; }
+.notif-dot { width:8px; height:8px; border-radius:50%; background:var(--sprout); margin-top:4px; flex-shrink:0; }
+
+/* ── AI ADVISOR ── */
+.ai-header {
+  background:linear-gradient(135deg,rgba(155,85,232,.15),rgba(25,36,20,.8));
+  border:1px solid rgba(155,85,232,.25); border-radius:var(--r);
+  padding:20px; margin-bottom:20px; text-align:center;
+}
+.ai-header-icon { font-size:48px; margin-bottom:10px; }
+.ai-header-title { font-size:20px; font-weight:700; color:#c088ff; margin-bottom:6px; }
+.ai-header-sub { font-size:13px; color:var(--sub); line-height:1.6; }
+
+.quick-asks { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px; }
+.quick-ask {
+  padding:12px; background:rgba(155,85,232,.1); border:1px solid rgba(155,85,232,.2);
+  border-radius:var(--r-sm); font-size:12px; color:#c088ff; cursor:pointer;
+  text-align:left; font-family:inherit; transition:all .2s; line-height:1.4;
+}
+.quick-ask:hover { background:rgba(155,85,232,.2); }
+
+.chat-area {
+  background:rgba(0,0,0,.2); border:1px solid var(--border);
+  border-radius:var(--r); overflow:hidden; margin-bottom:16px;
+}
+.chat-messages {
+  min-height:200px; max-height:340px; overflow-y:auto;
+  padding:16px; display:flex; flex-direction:column; gap:12px;
+}
+.chat-messages::-webkit-scrollbar { width:4px; }
+.chat-messages::-webkit-scrollbar-track { background:transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.chat-bubble { max-width:85%; padding:12px 14px; border-radius:12px; font-size:14px; line-height:1.6; }
+.chat-bubble.user { align-self:flex-end; background:rgba(90,170,56,.2); border:1px solid rgba(90,170,56,.3); }
+.chat-bubble.ai { align-self:flex-start; background:rgba(155,85,232,.15); border:1px solid rgba(155,85,232,.25); }
+.chat-bubble.ai .bubble-lbl { font-size:10px; color:rgba(155,85,232,.8); text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+.chat-input-row {
+  display:flex; gap:0; border-top:1px solid var(--border);
+}
+.chat-input {
+  flex:1; padding:14px 16px; background:transparent; border:none; outline:none;
+  color:var(--text); font-size:14px; font-family:inherit;
+}
+.chat-input::placeholder { color:rgba(200,232,176,.3); }
+.chat-send {
+  width:48px; background:rgba(90,170,56,.2); border:none; border-left:1px solid var(--border);
+  color:var(--glow); font-size:20px; cursor:pointer; transition:background .2s;
+}
+.chat-send:hover { background:rgba(90,170,56,.35); }
+.voice-ask-btn {
+  width:100%; padding:14px; background:rgba(155,85,232,.12); border:1px solid rgba(155,85,232,.3);
+  border-radius:var(--r-sm); color:#c088ff; font-size:14px; font-weight:500;
+  font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:all .2s;
+}
+.voice-ask-btn:hover { background:rgba(155,85,232,.22); }
+.voice-ask-btn.listening { background:rgba(155,85,232,.3); animation:pulse-ring 1s infinite; }
+@keyframes pulse-ring {
+  0%,100%{box-shadow:0 0 0 0 rgba(155,85,232,.4)}
+  50%{box-shadow:0 0 0 8px rgba(155,85,232,.0)}
+}
+
+/* ── VOICE PANEL ── */
+.voice-hero {
+  text-align:center; padding:30px 20px; margin-bottom:24px;
+}
+.voice-orb {
+  width:120px; height:120px; margin:0 auto 20px;
+  background:linear-gradient(135deg,rgba(90,170,56,.2),rgba(58,138,204,.2));
+  border:2px solid var(--sprout); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:52px;
+  cursor:pointer; transition:all .3s; position:relative;
+}
+.voice-orb.active {
+  background:linear-gradient(135deg,rgba(90,170,56,.4),rgba(58,138,204,.3));
+  box-shadow:0 0 0 12px rgba(90,170,56,.12), 0 0 0 24px rgba(90,170,56,.06);
+  animation:pulse-ring 1.2s infinite;
+}
+.voice-orb-label { font-size:18px; font-weight:600; margin-bottom:8px; }
+.voice-orb-sub { font-size:13px; color:var(--sub); }
+
+.voice-transcript {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:18px; margin-bottom:20px; min-height:80px;
+}
+.transcript-lbl { font-size:10px; color:var(--sub); text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px; }
+.transcript-text { font-size:16px; line-height:1.6; min-height:48px; }
+.transcript-text.placeholder { color:rgba(200,232,176,.25); font-style:italic; }
+
+.voice-commands { display:flex; flex-direction:column; gap:8px; }
+.voice-cmd {
+  background:rgba(90,170,56,.07); border:1px solid var(--border); border-radius:var(--r-sm);
+  padding:12px 16px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:all .2s;
+}
+.voice-cmd:hover { background:rgba(90,170,56,.14); border-color:rgba(90,170,56,.3); }
+.voice-cmd-icon { font-size:20px; width:32px; text-align:center; }
+.voice-cmd-text { font-size:13px; }
+.voice-cmd-native { font-size:12px; color:var(--sub); margin-top:2px; }
+
+/* ── FIELD MAP PANEL ── */
+.field-map {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:0; overflow:hidden; margin-bottom:20px; height:200px; position:relative;
+}
+.field-canvas { width:100%; height:100%; display:block; }
+.field-legend { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--sub); }
+.legend-dot { width:10px; height:10px; border-radius:50%; }
+
+.history-chart {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:18px; margin-bottom:20px;
+}
+.chart-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.chart-title { font-size:15px; font-weight:600; }
+.chart-tabs { display:flex; gap:4px; }
+.chart-tab {
+  padding:4px 10px; border-radius:5px; font-size:11px; cursor:pointer;
+  background:rgba(90,170,56,.08); border:1px solid var(--border); color:var(--sub);
+  font-family:inherit; transition:all .2s;
+}
+.chart-tab.active { background:rgba(90,170,56,.2); border-color:var(--sprout); color:var(--glow); }
+.mini-chart { height:80px; display:flex; align-items:flex-end; gap:4px; padding-top:8px; }
+.chart-bar { flex:1; border-radius:3px 3px 0 0; transition:height .5s ease; cursor:pointer; }
+.chart-bar:hover { opacity:.8; }
+.chart-labels { display:flex; gap:4px; margin-top:6px; }
+.chart-lbl { flex:1; text-align:center; font-size:9px; color:var(--sub); }
+
+/* ── SETTINGS PANEL ── */
+.settings-section { margin-bottom:24px; }
+.settings-section-title { font-size:12px; color:var(--sub); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.setting-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 0; border-bottom:1px solid rgba(90,170,56,.06);
+}
+.setting-info { flex:1; }
+.setting-name { font-size:14px; font-weight:500; }
+.setting-desc { font-size:11px; color:var(--sub); margin-top:2px; }
+.toggle {
+  width:44px; height:24px; background:rgba(255,255,255,.1); border-radius:12px;
+  position:relative; cursor:pointer; transition:background .3s; flex-shrink:0;
+}
+.toggle.on { background:var(--sprout); }
+.toggle::after {
+  content:''; position:absolute; top:2px; left:2px; width:20px; height:20px;
+  background:#fff; border-radius:50%; transition:transform .3s;
+}
+.toggle.on::after { transform:translateX(20px); }
+.setting-select {
+  background:rgba(0,0,0,.3); border:1px solid var(--border); border-radius:6px;
+  color:var(--text); padding:6px 10px; font-size:13px; font-family:inherit; outline:none;
+}
+.profile-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:20px; display:flex; align-items:center; gap:16px; margin-bottom:24px;
+}
+.profile-avatar { width:60px; height:60px; background:linear-gradient(135deg,var(--grass),var(--leaf)); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:28px; }
+.profile-name { font-size:18px; font-weight:600; }
+.profile-detail { font-size:12px; color:var(--sub); margin-top:2px; }
+
+/* ── LOADING / TYPING ── */
+.typing-indicator { display:flex; gap:4px; padding:10px 14px; align-items:center; }
+.typing-dot { width:7px; height:7px; border-radius:50%; background:rgba(155,85,232,.5); animation:tdot 1.2s infinite; }
+.typing-dot:nth-child(2){animation-delay:.2s}.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes tdot {0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+
+/* ── NOTIFICATIONS PANEL OVERLAY ── */
+#notifPanel {
+  position:fixed; top:0; right:0; bottom:0; width:min(360px,100%);
+  background:var(--mid); border-left:1px solid var(--border);
+  z-index:200; transform:translateX(100%); transition:transform .35s;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+#notifPanel.open { transform:translateX(0); }
+.panel-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:199; display:none; }
+.panel-overlay.show { display:block; }
+.notif-panel-head { padding:20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.notif-panel-title { font-size:18px; font-weight:600; }
+.close-btn { background:none; border:1px solid var(--border); border-radius:8px; color:var(--sub); width:36px; height:36px; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.close-btn:hover { color:var(--glow); border-color:var(--sprout); }
+.notif-panel-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeSlideUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.animate-in { animation:fadeSlideUp .4s ease forwards; }
+.delay-1 { animation-delay:.1s; opacity:0; }
+.delay-2 { animation-delay:.2s; opacity:0; }
+.delay-3 { animation-delay:.3s; opacity:0; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:380px) {
+  .metric-val { font-size:24px; }
+  .quick-asks { grid-template-columns:1fr; }
+}
+
+/* scrollbar */
+.panel::-webkit-scrollbar { width:4px; }
+.panel::-webkit-scrollbar-track { background:transparent; }
+.panel::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════ -->
+<div class="screen active" id="loginScreen">
+  <div class="login-logo animate-in">
+    <div class="logo-icon">🌱</div>
+    <div class="logo-title">AgriSense</div>
+    <div class="logo-sub">Smart Glove • Smart Farmer</div>
+  </div>
+
+  <div class="lang-select animate-in delay-1">
+    <div class="lang-label">Choose Your Language / भाषा चुनें</div>
+    <div class="lang-grid">
+      <button class="lang-btn active" onclick="setLang('en')" id="lang-en">
+        <span class="lang-native">English</span>English
+      </button>
+      <button class="lang-btn" onclick="setLang('hi')" id="lang-hi">
+        <span class="lang-native">हिन्दी</span>Hindi
+      </button>
+      <button class="lang-btn" onclick="setLang('mr')" id="lang-mr">
+        <span class="lang-native">मराठी</span>Marathi
+      </button>
+      <button class="lang-btn" onclick="setLang('pa')" id="lang-pa">
+        <span class="lang-native">ਪੰਜਾਬੀ</span>Punjabi
+      </button>
+      <button class="lang-btn" onclick="setLang('ta')" id="lang-ta">
+        <span class="lang-native">தமிழ்</span>Tamil
+      </button>
+      <button class="lang-btn" onclick="setLang('te')" id="lang-te">
+        <span class="lang-native">తెలుగు</span>Telugu
+      </button>
+    </div>
+  </div>
+
+  <div class="login-card animate-in delay-2">
+    <div class="form-group">
+      <label class="form-label" id="lbl-phone">Phone Number / Phone</label>
+      <input type="tel" class="form-input" placeholder="9876543210" id="phoneInput">
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-farm">Farm Name</label>
+      <input type="text" class="form-input" placeholder="e.g. Ram Singh's Farm" id="farmInput">
+    </div>
+    <button class="btn-primary" onclick="doLogin()" id="loginBtn">Login / Enter →</button>
+    <button class="demo-btn" onclick="doDemo()">👆 Try Demo (No Login Needed)</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAIN APP SCREEN
+══════════════════════════════════════ -->
+<div class="screen" id="appScreen">
+  <!-- Notification overlay -->
+  <div class="panel-overlay" id="notifOverlay" onclick="closeNotifPanel()"></div>
+  <div id="notifPanel">
+    <div class="notif-panel-head">
+      <span class="notif-panel-title">🔔 Notifications</span>
+      <button class="close-btn" onclick="closeNotifPanel()">✕</button>
+    </div>
+    <div class="notif-panel-body" id="notifPanelBody"></div>
+  </div>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div style="font-size:24px">🌱</div>
+      <div>
+        <div class="topbar-logo">AgriSense</div>
+        <div class="topbar-farm" id="farmNameDisplay">Ram Singh's Farm</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="notif-btn" onclick="openNotifPanel()">
+        🔔<span class="notif-badge" id="notifCount">3</span>
+      </div>
+      <div class="avatar" id="avatarBtn">R</div>
+    </div>
+  </div>
+
+  <!-- Nav tabs -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
+      <span class="tab-icon">📊</span>Dashboard
+    </button>
+    <button class="nav-tab" onclick="switchTab('sensors')" data-tab="sensors">
+      <span class="tab-icon">🔬</span>Sensors
+    </button>
+    <button class="nav-tab" onclick="switchTab('ai')" data-tab="ai">
+      <span class="tab-icon">🤖</span>AI Advisor
+    </button>
+    <button class="nav-tab" onclick="switchTab('voice')" data-tab="voice">
+      <span class="tab-icon">🎙️</span>Voice
+    </button>
+    <button class="nav-tab" onclick="switchTab('field')" data-tab="field">
+      <span class="tab-icon">🗺️</span>Field
+    </button>
+    <button class="nav-tab" onclick="switchTab('settings')" data-tab="settings">
+      <span class="tab-icon">⚙️</span>Settings
+    </button>
+  </div>
+
+  <!-- ── DASHBOARD PANEL ── -->
+  <div class="panel active" id="panel-dashboard">
+    <!-- Weather strip -->
+    <div class="weather-strip animate-in">
+      <div class="weather-icon">⛅</div>
+      <div class="weather-info">
+        <div class="weather-loc" id="weather-loc">📍 Meerut, UP</div>
+        <div class="weather-temp">28°C</div>
+        <div class="weather-desc">Partly Cloudy • Humidity 64%</div>
+      </div>
+      <div class="weather-extra">
+        <div class="weather-humidity">💧 Humidity: 64%</div>
+        <div class="weather-rain">🌧 Rain in 2 days</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:4px">Wind: 12 km/h</div>
+      </div>
+    </div>
+
+    <!-- AI quick recommendation -->
+    <div class="ai-strip animate-in delay-1">
+      <div class="ai-avatar">🤖</div>
+      <div class="ai-content">
+        <div class="ai-label">AI Recommendation</div>
+        <div class="ai-msg" id="dashAiMsg">⚠️ Nitrogen level is LOW. Apply <strong>urea fertiliser (2 kg per 100m²)</strong> in the next 3 days before rain arrives. Moisture is adequate — no irrigation needed today.</div>
+        <span class="ai-action" onclick="switchTab('ai')">Ask AI for more →</span>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="section-title">Live Soil Readings</div>
+    <div class="metric-grid animate-in delay-2">
+      <div class="metric-card moisture" onclick="switchTab('sensors')">
+        <div class="metric-icon">💧</div>
+        <div class="metric-label">Moisture</div>
+        <div class="metric-val"><span id="m-moist">68</span><span class="unit">%</span></div>
+        <div class="metric-status"><span class="status-dot ok"></span><span class="status-txt">Adequate</span></div>
+        <div class="metric-bar"><div class="metric-fill" style="width:68%;background:linear-gradient(90deg,#3a8acc,#6ab8f0)"></div></div>
+      </div>
+      <div class="metric-card npk" onclick="switchTab('sensors')">
+        <div class="metric-icon">🌿</div>
+        <div class="metric-label">NPK Level</div>
+        <div class="metric-val" style="font-size:18px;padding-top:4px"><span>N:<b style="color:var(--danger)">LOW</b><br>P:OK K:OK</span></div>
+        <div class="metric-status"><span class="status-dot warn"></span><span class="status-txt">Nitrogen Low</span></div>
+        <div class="metric-bar"><div class="metric-fill"></div></div>
+      </div>
+      <div class="metric-card ph" onclick="switchTab('sensors')">
+        <div class="metric-icon">⚗️</div>
+        <div class="metric-label">Soil pH</div>
+        <div class="metric-val"><span id="m-ph">6.8</span></div>
+        <div class="metric-status"><span class="status-dot ok"></span><span class="status-txt">Optimal</span></div>
+        <div class="metric-bar"><div class="metric-fill"></div></div>
+      </div>
+      <div class="metric-card temp" onclick="switchTab('sensors')">
+        <div class="metric-icon">🌡️</div>
+        <div class="metric-label">Soil Temp</div>
+        <div class="metric-val"><span id="m-temp">24.2</span><span class="unit">°C</span></div>
+        <div class="metric-status"><span class="status-dot ok"></span><span class="status-txt">Good for crops</span></div>
+        <div class="metric-bar"><div class="metric-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- Crop timer -->
+    <div class="section-title">Current Crop</div>
+    <div class="crop-card animate-in delay-3">
+      <div class="crop-header">
+        <div class="crop-name">🌾 Wheat (Gehoon)</div>
+        <div class="crop-badge">Vegetative Stage</div>
+      </div>
+      <div class="harvest-progress">
+        <div class="harvest-bar"><div class="harvest-fill"></div></div>
+        <div class="harvest-labels"><span>Planted</span><span>62% grown</span><span>Harvest</span></div>
+      </div>
+      <div class="harvest-days">
+        <div class="harvest-num">38</div>
+        <div class="harvest-sub">days to estimated harvest</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SENSORS PANEL ── -->
+  <div class="panel" id="panel-sensors">
+    <div class="section-title">All Sensors — Last Read: 10 min ago</div>
+    <div class="sensor-list">
+      <div class="sensor-row animate-in">
+        <div class="sensor-icon-wrap blue">💧</div>
+        <div class="sensor-body">
+          <div class="sensor-name">Soil Moisture</div>
+          <div class="sensor-type">Capacitive Sensor · Finger 1</div>
+          <div class="sensor-reading" style="color:#6ab8f0">68<span style="font-size:16px;color:var(--sub)"> %</span></div>
+          <div class="sensor-scale">
+            <div class="scale-bar"><div class="scale-fill" style="width:68%;background:linear-gradient(90deg,#3a8acc,#6ab8f0)"></div></div>
+            <span class="scale-val">68/100</span>
+          </div>
+          <div class="sensor-advice">✅ Soil moisture is adequate. No irrigation needed for next 2–3 days. Rain expected Thursday — delay any planned watering.</div>
+        </div>
+      </div>
+      <div class="sensor-row animate-in delay-1">
+        <div class="sensor-icon-wrap amber">🌿</div>
+        <div class="sensor-body">
+          <div class="sensor-name">NPK Nutrients</div>
+          <div class="sensor-type">NIR Spectral Sensor · Finger 2</div>
+          <div class="sensor-reading" style="color:var(--amber);font-size:18px;margin-top:4px">
+            N: <b style="color:var(--danger)">12 mg/kg</b> (LOW)<br>
+            P: <b style="color:var(--sprout)">28 mg/kg</b> (OK)<br>
+            K: <b style="color:var(--sprout)">196 mg/kg</b> (OK)
+          </div>
+          <div class="sensor-scale">
+            <div class="scale-bar"><div class="scale-fill" style="width:22%;background:var(--danger)"></div></div>
+            <span class="scale-val" style="color:var(--danger)">N Low</span>
+          </div>
+          <div class="sensor-advice">⚠️ Nitrogen is critically low. Apply Urea @ 2 kg per 100 m². Apply in evening to avoid evaporation loss.</div>
+        </div>
+      </div>
+      <div class="sensor-row animate-in delay-2">
+        <div class="sensor-icon-wrap purple">⚗️</div>
+        <div class="sensor-body">
+          <div class="sensor-name">Soil pH</div>
+          <div class="sensor-type">ISFET Electrode · Thumb</div>
+          <div class="sensor-reading" style="color:#c088ff">6.8</div>
+          <div class="sensor-scale">
+            <div class="scale-bar"><div class="scale-fill" style="width:60%;background:linear-gradient(90deg,#9b55e8,#c088ff)"></div></div>
+            <span class="scale-val">6.8 pH</span>
+          </div>
+          <div class="sensor-advice">✅ Slightly acidic (6.8) — ideal range for wheat is 6.0–7.5. No lime treatment needed currently.</div>
+        </div>
+      </div>
+      <div class="sensor-row animate-in delay-3">
+        <div class="sensor-icon-wrap red">🌡️</div>
+        <div class="sensor-body">
+          <div class="sensor-name">Soil Temperature</div>
+          <div class="sensor-type">Thermistor Sensor · Finger 4</div>
+          <div class="sensor-reading" style="color:#f07050">24.2<span style="font-size:16px;color:var(--sub)">°C</span></div>
+          <div class="sensor-scale">
+            <div class="scale-bar"><div class="scale-fill" style="width:55%;background:linear-gradient(90deg,#e05030,#f07050)"></div></div>
+            <span class="scale-val">24.2°C</span>
+          </div>
+          <div class="sensor-advice">✅ Warm soil at 24.2°C — excellent for wheat germination (optimal: 20–25°C). Good condition for root growth.</div>
+        </div>
+      </div>
+      <div class="sensor-row animate-in">
+        <div class="sensor-icon-wrap green">☀️</div>
+        <div class="sensor-body">
+          <div class="sensor-name">Solar + Battery</div>
+          <div class="sensor-type">Glove Power System</div>
+          <div class="sensor-reading" style="color:var(--sprout)">78<span style="font-size:16px;color:var(--sub)">%</span></div>
+          <div class="sensor-scale">
+            <div class="scale-bar"><div class="scale-fill" style="width:78%;background:linear-gradient(90deg,var(--grass),var(--sprout))"></div></div>
+            <span class="scale-val">78%</span>
+          </div>
+          <div class="sensor-advice">☀️ Solar charging active. Battery is healthy. Estimated 11 hours of use remaining today.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AI ADVISOR PANEL ── -->
+  <div class="panel" id="panel-ai">
+    <div class="ai-header animate-in">
+      <div class="ai-header-icon">🤖</div>
+      <div class="ai-header-title">AgriSense AI Advisor</div>
+      <div class="ai-header-sub">Ask anything about your soil, crops, fertiliser, weather, or farming in your language. Powered by Claude AI.</div>
+    </div>
+
+    <div class="section-title">Quick Questions</div>
+    <div class="quick-asks animate-in delay-1">
+      <button class="quick-ask" onclick="askAI('What fertiliser should I apply today?')">🌱 What fertiliser should I apply today?</button>
+      <button class="quick-ask" onclick="askAI('Should I irrigate my field today?')">💧 Should I irrigate today?</button>
+      <button class="quick-ask" onclick="askAI('How many days until wheat harvest?')">🌾 Days until harvest?</button>
+      <button class="quick-ask" onclick="askAI('Is my soil pH good for wheat?')">⚗️ Is soil pH good?</button>
+      <button class="quick-ask" onclick="askAI('What crop disease should I watch for?')">🦠 Crop disease warnings?</button>
+      <button class="quick-ask" onclick="askAI('What is the best time to sow the next crop?')">📅 Next sowing time?</button>
+    </div>
+
+    <div class="section-title">Chat with AI</div>
+    <div class="chat-area animate-in delay-2">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-bubble ai">
+          <div class="bubble-lbl">🤖 AI Advisor</div>
+          Namaste! I am your AgriSense AI assistant. I have read your soil data: Moisture is good at 68%, pH is optimal at 6.8, but <strong>Nitrogen is LOW</strong>. I recommend applying urea today. How can I help you further?
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="Ask anything about your farm..." onkeydown="if(event.key==='Enter') sendChat()">
+        <button class="chat-send" onclick="sendChat()">→</button>
+      </div>
+    </div>
+
+    <button class="voice-ask-btn" id="voiceAskBtn" onclick="startVoiceChat()">
+      🎙️ Speak Your Question (हिंदी / English)
+    </button>
+  </div>
+
+  <!-- ── VOICE PANEL ── -->
+  <div class="panel" id="panel-voice">
+    <div class="voice-hero animate-in">
+      <div class="voice-orb" id="voiceOrb" onclick="toggleVoice()">🎙️</div>
+      <div class="voice-orb-label" id="voiceOrbLabel">Tap to speak</div>
+      <div class="voice-orb-sub" id="voiceOrbSub">Speak in Hindi, English, or your regional language</div>
+    </div>
+
+    <div class="voice-transcript animate-in delay-1">
+      <div class="transcript-lbl">Your voice</div>
+      <div class="transcript-text placeholder" id="transcriptDisplay">Waiting for your voice...</div>
+    </div>
+
+    <div class="voice-transcript animate-in delay-1" style="border-color:rgba(155,85,232,.3);background:rgba(155,85,232,.05)">
+      <div class="transcript-lbl" style="color:rgba(155,85,232,.8)">AI Response</div>
+      <div class="transcript-text" id="voiceResponseDisplay" style="color:var(--sub);font-style:italic">Response will appear here after you speak...</div>
+    </div>
+
+    <div class="section-title">Voice Commands You Can Say</div>
+    <div class="voice-commands animate-in delay-2">
+      <div class="voice-cmd" onclick="simulateVoice('Mitti mein paani kitna hai')">
+        <span class="voice-cmd-icon">💧</span>
+        <div><div class="voice-cmd-text">"How much moisture is in soil?"</div><div class="voice-cmd-native hindi">मिट्टी में पानी कितना है?</div></div>
+      </div>
+      <div class="voice-cmd" onclick="simulateVoice('Aaj kaunsa khaad dena chahiye')">
+        <span class="voice-cmd-icon">🌿</span>
+        <div><div class="voice-cmd-text">"Which fertiliser today?"</div><div class="voice-cmd-native hindi">आज कौनसा खाद देना चाहिए?</div></div>
+      </div>
+      <div class="voice-cmd" onclick="simulateVoice('Sinchai karna hai ya nahi')">
+        <span class="voice-cmd-icon">🚿</span>
+        <div><div class="voice-cmd-text">"Should I irrigate or not?"</div><div class="voice-cmd-native hindi">सिंचाई करना है या नहीं?</div></div>
+      </div>
+      <div class="voice-cmd" onclick="simulateVoice('Fasal kab kaatni hai')">
+        <span class="voice-cmd-icon">🌾</span>
+        <div><div class="voice-cmd-text">"When should I harvest?"</div><div class="voice-cmd-native hindi">फसल कब काटनी है?</div></div>
+      </div>
+      <div class="voice-cmd" onclick="simulateVoice('Mitti ka pH kaisa hai')">
+        <span class="voice-cmd-icon">⚗️</span>
+        <div><div class="voice-cmd-text">"How is soil pH?"</div><div class="voice-cmd-native hindi">मिट्टी का pH कैसा है?</div></div>
+      </div>
+      <div class="voice-cmd" onclick="simulateVoice('Aaj ka mausam kaisa rahega')">
+        <span class="voice-cmd-icon">⛅</span>
+        <div><div class="voice-cmd-text">"What is today's weather?"</div><div class="voice-cmd-native hindi">आज का मौसम कैसा रहेगा?</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FIELD MAP PANEL ── -->
+  <div class="panel" id="panel-field">
+    <div class="section-title">Field Health Map</div>
+    <div class="field-map animate-in">
+      <canvas class="field-canvas" id="fieldCanvas"></canvas>
+    </div>
+    <div class="field-legend animate-in delay-1">
+      <div class="legend-item"><div class="legend-dot" style="background:#4CAF50"></div>Healthy</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#FFC107"></div>Moderate</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f44336"></div>Needs care</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2196F3"></div>Well watered</div>
+    </div>
+
+    <div class="section-title">7-Day Moisture History</div>
+    <div class="history-chart animate-in delay-2">
+      <div class="chart-head">
+        <div class="chart-title">Soil Moisture %</div>
+        <div class="chart-tabs">
+          <button class="chart-tab active">7D</button>
+          <button class="chart-tab">30D</button>
+          <button class="chart-tab">3M</button>
+        </div>
+      </div>
+      <div class="mini-chart" id="moistChart"></div>
+      <div class="chart-labels" id="moistLabels"></div>
+    </div>
+
+    <div class="history-chart animate-in delay-3">
+      <div class="chart-head">
+        <div class="chart-title">NPK Trend</div>
+        <div class="chart-tabs">
+          <button class="chart-tab active">7D</button>
+          <button class="chart-tab">30D</button>
+        </div>
+      </div>
+      <div class="mini-chart" id="npkChart"></div>
+      <div class="chart-labels" id="npkLabels"></div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS PANEL ── -->
+  <div class="panel" id="panel-settings">
+    <div class="profile-card animate-in">
+      <div class="profile-avatar">👨‍🌾</div>
+      <div>
+        <div class="profile-name" id="profileName">Ram Singh</div>
+        <div class="profile-detail" id="profileFarm">Ram Singh's Farm · Meerut, UP</div>
+        <div class="profile-detail">📱 +91 98765 43210</div>
+      </div>
+    </div>
+
+    <div class="settings-section animate-in">
+      <div class="settings-section-title">Language & Voice</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">App Language</div><div class="setting-desc">Change display language</div></div>
+        <select class="setting-select" onchange="setLang(this.value)">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="mr">मराठी</option>
+          <option value="pa">ਪੰਜਾਬੀ</option>
+          <option value="ta">தமிழ்</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">Voice Alerts</div><div class="setting-desc">Read sensor warnings aloud</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">AI Voice Response</div><div class="setting-desc">AI speaks answers to your questions</div></div>
+        <div class="toggle on" id="voiceRespToggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="settings-section animate-in delay-1">
+      <div class="settings-section-title">Notifications</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">Critical Alerts</div><div class="setting-desc">Low NPK, extreme pH, drought</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">Daily Report</div><div class="setting-desc">Morning summary at 6:00 AM</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">Weather Alerts</div><div class="setting-desc">Rain, storm, frost warnings</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">SMS Alerts</div><div class="setting-desc">Send alerts to your mobile</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="settings-section animate-in delay-2">
+      <div class="settings-section-title">Crop & Farm</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">Current Crop</div><div class="setting-desc">Used for AI recommendations</div></div>
+        <select class="setting-select">
+          <option>Wheat (Gehoon)</option>
+          <option>Rice (Chawal)</option>
+          <option>Sugarcane (Ganna)</option>
+          <option>Maize (Makka)</option>
+          <option>Cotton (Kapas)</option>
+          <option>Tomato</option>
+          <option>Potato (Aloo)</option>
+          <option>Onion (Pyaz)</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">Farm Size</div><div class="setting-desc">Used for fertiliser dosage</div></div>
+        <select class="setting-select">
+          <option>0.5 hectare</option>
+          <option>1 hectare</option>
+          <option selected>2 hectares</option>
+          <option>5 hectares</option>
+          <option>10+ hectares</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-section animate-in delay-3">
+      <div class="settings-section-title">Glove Device</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">Glove Status</div><div class="setting-desc">AgriSense G1 · Connected</div></div>
+        <span style="font-size:12px;color:var(--sprout)">● Connected</span>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">Battery</div><div class="setting-desc">78% · Charging via solar</div></div>
+        <span style="font-size:12px;color:var(--sprout)">78% ☀️</span>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-name">Last Sync</div><div class="setting-desc">Sensor data last received</div></div>
+        <span style="font-size:12px;color:var(--sub)">10 min ago</span>
+      </div>
+    </div>
+
+    <button class="demo-btn" onclick="doLogout()" style="margin-top:12px">🚪 Logout</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+let currentLang = 'en';
+let isListening = false;
+let recognition = null;
+
+const TRANSLATIONS = {
+  en: {
+    loginBtn: 'Login / Enter →',
+    farmLabel: 'Farm Name',
+    phoneLabel: 'Phone Number',
+    aiWelcome: 'Namaste! I am your AgriSense AI assistant. I have read your soil data: Moisture is good at 68%, pH is optimal at 6.8, but **Nitrogen is LOW**. I recommend applying urea today. How can I help you further?',
+    tapSpeak: 'Tap to speak',
+    speakSub: 'Speak in Hindi, English, or your regional language',
+  },
+  hi: {
+    loginBtn: 'लॉगिन करें →',
+    farmLabel: 'खेत का नाम',
+    phoneLabel: 'मोबाइल नंबर',
+    aiWelcome: 'नमस्ते! मैं आपका AgriSense AI सहायक हूँ। आपकी मिट्टी की जांच: नमी 68% (ठीक है), pH 6.8 (अच्छा है), लेकिन **नाइट्रोजन बहुत कम** है। आज यूरिया डालें। और क्या जानना है?',
+    tapSpeak: 'बोलने के लिए दबाएं',
+    speakSub: 'हिंदी या अंग्रेजी में बोलें',
+  },
+  mr: {
+    loginBtn: 'लॉगिन करा →',
+    farmLabel: 'शेताचे नाव',
+    phoneLabel: 'मोबाईल नंबर',
+    aiWelcome: 'नमस्कार! मी तुमचा AgriSense AI सहाय्यक आहे. तुमच्या मातीचा अहवाल: ओलावा 68% (चांगला), pH 6.8 (योग्य), परंतु **नायट्रोजन खूप कमी** आहे. आज युरिया घाला.',
+    tapSpeak: 'बोलण्यासाठी दाबा',
+    speakSub: 'मराठी किंवा इंग्रजीत बोला',
+  },
+  pa: {
+    loginBtn: 'ਲੌਗਇਨ ਕਰੋ →',
+    farmLabel: 'ਖੇਤ ਦਾ ਨਾਮ',
+    phoneLabel: 'ਮੋਬਾਈਲ ਨੰਬਰ',
+    aiWelcome: 'ਸਤ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਤੁਹਾਡਾ AgriSense AI ਸਹਾਇਕ ਹਾਂ। ਮਿੱਟੀ ਦੀ ਰਿਪੋਰਟ: ਨਮੀ 68%, pH 6.8 ਚੰਗਾ, ਪਰ ਨਾਈਟ੍ਰੋਜਨ ਬਹੁਤ ਘੱਟ ਹੈ। ਅੱਜ ਯੂਰੀਆ ਪਾਓ।',
+    tapSpeak: 'ਬੋਲਣ ਲਈ ਦਬਾਓ',
+    speakSub: 'ਪੰਜਾਬੀ ਜਾਂ ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਬੋਲੋ',
+  },
+  ta: {
+    loginBtn: 'உள்நுழைக →',
+    farmLabel: 'பண்ணை பெயர்',
+    phoneLabel: 'மொபைல் எண்',
+    aiWelcome: 'வணக்கம்! நான் உங்கள் AgriSense AI உதவியாளர். மண் அறிக்கை: ஈரப்பதம் 68% (நல்லது), pH 6.8 (சரியானது), ஆனால் நைட்ரஜன் மிகவும் குறைவு. இன்று யூரியா இடுங்கள்.',
+    tapSpeak: 'பேச தொடுக',
+    speakSub: 'தமிழ் அல்லது ஆங்கிலத்தில் பேசுங்கள்',
+  },
+  te: {
+    loginBtn: 'లాగిన్ చేయండి →',
+    farmLabel: 'పొలం పేరు',
+    phoneLabel: 'మొబైల్ నంబర్',
+    aiWelcome: 'నమస్కారం! నేను మీ AgriSense AI సహాయకుడిని. మట్టి నివేదిక: తేమ 68% (మంచిది), pH 6.8 (సరైనది), కానీ నైట్రోజన్ చాలా తక్కువగా ఉంది. ఈ రోజు యూరియా వేయండి.',
+    tapSpeak: 'మాట్లాడటానికి నొక్కండి',
+    speakSub: 'తెలుగు లేదా ఇంగ్లీషులో మాట్లాడండి',
+  }
+};
+
+const NOTIFICATIONS = [
+  { type:'danger', emoji:'🚨', title:'Nitrogen Critical', desc:'NPK sensor detected Nitrogen below safe threshold. Apply urea within 48 hours to prevent yield loss.', time:'2 hours ago', unread:true },
+  { type:'warn',   emoji:'⛅', title:'Rain in 2 Days', desc:'Weather forecast: 12mm rain expected Thursday. Delay fertiliser application until after rain.', time:'4 hours ago', unread:true },
+  { type:'unread', emoji:'📊', title:'Daily Soil Report Ready', desc:'Morning soil scan complete. Moisture 68%, pH 6.8, Temp 24.2°C. Full report available.', time:'6:00 AM', unread:true },
+  { type:'',       emoji:'✅', title:'Irrigation Skipped', desc:'AI auto-recommendation: Moisture is adequate, irrigation skipped today. Saved approx 2,400L of water.', time:'Yesterday', unread:false },
+  { type:'',       emoji:'🌱', title:'Crop Stage Update', desc:'Your wheat entered the vegetative stage. 38 days to estimated harvest. AI adjusting recommendations.', time:'3 days ago', unread:false },
+  { type:'warn',   emoji:'🌡️', title:'Soil Warming Detected', desc:'Soil temperature rose to 24.2°C. Good for wheat. Monitor if it exceeds 28°C.', time:'4 days ago', unread:false },
+];
+
+// ═══════════════════════════════════
+// LANGUAGE
+// ═══════════════════════════════════
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('lang-' + lang);
+  if (el) el.classList.add('active');
+  const T = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  const loginBtn = document.getElementById('loginBtn');
+  if (loginBtn) loginBtn.textContent = T.loginBtn;
+  const farmLbl = document.getElementById('lbl-farm');
+  if (farmLbl) farmLbl.textContent = T.farmLabel;
+  const phoneLbl = document.getElementById('lbl-phone');
+  if (phoneLbl) phoneLbl.textContent = T.phoneLabel;
+  const oLbl = document.getElementById('voiceOrbLabel');
+  if (oLbl) oLbl.textContent = T.tapSpeak;
+  const oSub = document.getElementById('voiceOrbSub');
+  if (oSub) oSub.textContent = T.speakSub;
+}
+
+// ═══════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════
+function doLogin() {
+  const phone = document.getElementById('phoneInput').value.trim();
+  const farm  = document.getElementById('farmInput').value.trim();
+  if (!phone) { alert('Please enter your phone number'); return; }
+  enterApp(farm || 'My Farm', phone);
+}
+function doDemo() {
+  enterApp("Ram Singh's Farm", '9876543210');
+}
+function enterApp(farm, phone) {
+  document.getElementById('farmNameDisplay').textContent = farm;
+  document.getElementById('profileName').textContent = phone.replace(/(\d{5})(\d{5})/,'$1 $2');
+  document.getElementById('profileFarm').textContent = farm + ' · Meerut, UP';
+  document.getElementById('avatarBtn').textContent = (farm[0] || 'F').toUpperCase();
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  setTimeout(initCharts, 200);
+  populateNotifPanel();
+  speak(TRANSLATIONS[currentLang]?.aiWelcome || TRANSLATIONS.en.aiWelcome, false);
+}
+function doLogout() {
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+}
+
+// ═══════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('panel-' + tab);
+  if (panel) {
+    panel.classList.add('active');
+    if (tab === 'field') initCharts();
+  }
+}
+
+// ═══════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════
+function populateNotifPanel() {
+  const body = document.getElementById('notifPanelBody');
+  body.innerHTML = NOTIFICATIONS.map(n => `
+    <div class="notif-item ${n.type}">
+      <span class="notif-emoji">${n.emoji}</span>
+      <div class="notif-body">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-desc">${n.desc}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+      ${n.unread ? '<div class="notif-dot"></div>' : ''}
+    </div>
+  `).join('');
+}
+function openNotifPanel() {
+  document.getElementById('notifPanel').classList.add('open');
+  document.getElementById('notifOverlay').classList.add('show');
+  document.getElementById('notifCount').style.display = 'none';
+}
+function closeNotifPanel() {
+  document.getElementById('notifPanel').classList.remove('open');
+  document.getElementById('notifOverlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════
+// AI CHAT (Anthropic API)
+// ═══════════════════════════════════
+const SOIL_CONTEXT = `You are AgriSense AI, a helpful agricultural assistant for Indian farmers. 
+Current sensor readings from the farmer's AgriSense smart glove:
+- Soil Moisture: 68% (Adequate, no irrigation needed)
+- Soil pH: 6.8 (Optimal for wheat, slightly acidic)
+- Nitrogen (N): 12 mg/kg — CRITICALLY LOW (needs urea application)
+- Phosphorus (P): 28 mg/kg — Adequate
+- Potassium (K): 196 mg/kg — Adequate
+- Soil Temperature: 24.2°C (Excellent for wheat germination)
+- Current crop: Wheat (Gehoon), 38 days to harvest, vegetative stage
+- Weather: 28°C, partly cloudy, rain expected in 2 days
+- Location: Meerut, Uttar Pradesh, India
+- Farm size: 2 hectares
+
+Give short, clear, practical advice. Use simple language. Mention quantities (kg per hectare, litres per area). 
+If answering in Hindi or if the question is in Hindi, reply in simple Hindi using Devanagari script.
+Keep responses under 120 words. Be warm and encouraging.`;
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  appendChat(msg, 'user');
+  const typing = appendTyping();
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SOIL_CONTEXT,
+        messages: [{ role: 'user', content: msg }]
+      })
+    });
+    const data = await resp.json();
+    typing.remove();
+    const text = data.content?.[0]?.text || 'Sorry, I could not get a response. Please try again.';
+    appendChat(text, 'ai');
+    speak(text);
+  } catch(e) {
+    typing.remove();
+    const fallback = getFallbackResponse(msg);
+    appendChat(fallback, 'ai');
+    speak(fallback);
+  }
+}
+
+function getFallbackResponse(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('urea') || m.includes('fertiliser') || m.includes('khaad') || m.includes('nitrogen'))
+    return 'Your Nitrogen is critically low at 12 mg/kg. Apply Urea @ 2 kg per 100 m² (40 kg total for your 2-hectare farm). Apply in the evening. Wait until after Thursday\'s rain before applying.';
+  if (m.includes('irrigat') || m.includes('paani') || m.includes('sinch'))
+    return 'No irrigation needed today. Your soil moisture is 68%, which is adequate for wheat. Rain is expected in 2 days — this will top up soil moisture naturally. Save your water!';
+  if (m.includes('harvest') || m.includes('kaat') || m.includes('फसल'))
+    return 'Your wheat is estimated to be ready for harvest in 38 days. The crop is currently in the vegetative stage at 62% growth. Keep applying recommended nutrients for best yield.';
+  if (m.includes('ph') || m.includes('acid'))
+    return 'Your soil pH is 6.8 — slightly acidic, which is ideal for wheat (optimal range: 6.0–7.5). No lime treatment needed. Your pH is perfect!';
+  if (m.includes('mausam') || m.includes('weather') || m.includes('rain') || m.includes('baarish'))
+    return 'Today: 28°C, partly cloudy, humidity 64%. Rain (12mm) is expected in 2 days (Thursday). Avoid fertiliser application until after the rain passes.';
+  return 'Based on your soil readings: Moisture is good, pH is excellent, but Nitrogen is LOW. Main action today: apply Urea 40 kg across your 2-hectare farm. No irrigation needed. Any specific question?';
+}
+
+function appendChat(text, role) {
+  const box = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-bubble ' + role;
+  if (role === 'ai') div.innerHTML = '<div class="bubble-lbl">🤖 AI Advisor</div>' + text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  else div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+function appendTyping() {
+  const box = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-bubble ai';
+  div.innerHTML = '<div class="bubble-lbl">🤖 AI Advisor</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+function askAI(question) {
+  switchTab('ai');
+  setTimeout(() => {
+    document.getElementById('chatInput').value = question;
+    sendChat();
+  }, 300);
+}
+
+// ═══════════════════════════════════
+// TEXT-TO-SPEECH
+// ═══════════════════════════════════
+function speak(text, doSpeak = true) {
+  if (!doSpeak) return;
+  const toggleEl = document.getElementById('voiceRespToggle');
+  if (toggleEl && !toggleEl.classList.contains('on')) return;
+  if (!('speechSynthesis' in window)) return;
+  const clean = text.replace(/<[^>]+>/g, '').replace(/\*\*(.*?)\*\*/g, '$1');
+  const utter = new SpeechSynthesisUtterance(clean);
+  const langMap = {en:'en-IN', hi:'hi-IN', mr:'mr-IN', pa:'pa-IN', ta:'ta-IN', te:'te-IN'};
+  utter.lang = langMap[currentLang] || 'hi-IN';
+  utter.rate = 0.88; utter.pitch = 1.0; utter.volume = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+// ═══════════════════════════════════
+// VOICE INPUT
+// ═══════════════════════════════════
+function toggleVoice() {
+  if (isListening) stopListening();
+  else startListening();
+}
+
+function startListening() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    document.getElementById('voiceOrbLabel').textContent = 'Voice not supported in this browser';
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  const langMap = {en:'en-IN', hi:'hi-IN', mr:'mr-IN', pa:'pa-IN', ta:'ta-TW', te:'te-IN'};
+  recognition.lang = langMap[currentLang] || 'hi-IN';
+  recognition.continuous = false; recognition.interimResults = true;
+  recognition.onstart = () => {
+    isListening = true;
+    document.getElementById('voiceOrb').classList.add('active');
+    document.getElementById('voiceOrbLabel').textContent = 'Listening...';
+    document.getElementById('transcriptDisplay').textContent = '';
+    document.getElementById('transcriptDisplay').classList.remove('placeholder');
+  };
+  recognition.onresult = (e) => {
+    const t = Array.from(e.results).map(r=>r[0].transcript).join('');
+    document.getElementById('transcriptDisplay').textContent = t;
+    if (e.results[e.results.length-1].isFinal) {
+      handleVoiceQuery(t);
+    }
+  };
+  recognition.onerror = recognition.onend = () => stopListening();
+  recognition.start();
+}
+
+function stopListening() {
+  isListening = false;
+  if (recognition) { try { recognition.stop(); } catch(e){} }
+  document.getElementById('voiceOrb').classList.remove('active');
+  const T = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+  document.getElementById('voiceOrbLabel').textContent = T.tapSpeak;
+}
+
+async function handleVoiceQuery(query) {
+  stopListening();
+  document.getElementById('voiceResponseDisplay').textContent = '⏳ Thinking...';
+  document.getElementById('voiceResponseDisplay').style.fontStyle = 'normal';
+  document.getElementById('voiceResponseDisplay').style.color = 'var(--sub)';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        system: SOIL_CONTEXT,
+        messages:[{role:'user', content: query}]
+      })
+    });
+    const data = await resp.json();
+    const answer = data.content?.[0]?.text || getFallbackResponse(query);
+    document.getElementById('voiceResponseDisplay').textContent = answer;
+    document.getElementById('voiceResponseDisplay').style.color = 'var(--text)';
+    speak(answer);
+  } catch(e) {
+    const fallback = getFallbackResponse(query);
+    document.getElementById('voiceResponseDisplay').textContent = fallback;
+    speak(fallback);
+  }
+}
+
+function simulateVoice(text) {
+  switchTab('voice');
+  document.getElementById('transcriptDisplay').textContent = text;
+  document.getElementById('transcriptDisplay').classList.remove('placeholder');
+  handleVoiceQuery(text);
+}
+
+function startVoiceChat() {
+  switchTab('voice');
+  setTimeout(startListening, 300);
+}
+
+// ═══════════════════════════════════
+// CHARTS & FIELD MAP
+// ═══════════════════════════════════
+let chartsInit = false;
+function initCharts() {
+  if (chartsInit) return;
+  chartsInit = true;
+  drawFieldMap();
+  drawBarChart('moistChart','moistLabels',
+    [58,62,70,65,71,68,68],
+    ['Mon','Tue','Wed','Thu','Fri','Sat','Today'],
+    (v) => `rgba(58,138,204,${0.4+v/140})`, 'var(--water)'
+  );
+  drawBarChart('npkChart','npkLabels',
+    [22,20,18,16,15,13,12],
+    ['Mon','Tue','Wed','Thu','Fri','Sat','Today'],
+    (v,i) => i===6?'rgba(224,80,48,.8)':'rgba(232,160,32,.55)', 'var(--amber)'
+  );
+}
+
+function drawBarChart(chartId, labelsId, values, labels, colorFn, accent) {
+  const chart = document.getElementById(chartId);
+  const labelsEl = document.getElementById(labelsId);
+  if (!chart) return;
+  const max = Math.max(...values);
+  chart.innerHTML = values.map((v,i) => `
+    <div class="chart-bar" style="height:${(v/max*72)}px;background:${colorFn(v,i)};border-top:2px solid ${i===values.length-1?accent:'transparent'}"
+         title="${labels[i]}: ${v}"></div>
+  `).join('');
+  labelsEl.innerHTML = labels.map(l=>`<div class="chart-lbl">${l}</div>`).join('');
+}
+
+function drawFieldMap() {
+  const canvas = document.getElementById('fieldCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio || 680;
+  canvas.height = 200;
+  const W = canvas.width, H = canvas.height;
+  // Draw field grid with health zones
+  const zones = [
+    {x:.05,y:.05,w:.4,h:.45, color:'rgba(76,175,80,.55)', label:'Zone A\nHealthy'},
+    {x:.55,y:.05,w:.4,h:.45, color:'rgba(255,193,7,.5)',  label:'Zone B\nN-Low'},
+    {x:.05,y:.6, w:.4,h:.35, color:'rgba(33,150,243,.5)', label:'Zone C\nWell watered'},
+    {x:.55,y:.6, w:.4,h:.35, color:'rgba(244,67,54,.5)',  label:'Zone D\nNeeds care'},
+  ];
+  // Background
+  ctx.fillStyle = '#0d180a'; ctx.fillRect(0,0,W,H);
+  // Zones
+  zones.forEach(z => {
+    ctx.fillStyle = z.color;
+    const rx=z.x*W, ry=z.y*H, rw=z.w*W, rh=z.h*H;
+    ctx.beginPath();
+    ctx.roundRect(rx,ry,rw,rh,6);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.lineWidth=1; ctx.stroke();
+    const lines = z.label.split('\n');
+    ctx.fillStyle='rgba(255,255,255,.8)'; ctx.font=`bold ${Math.min(12,rw/8)}px Sora,sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(lines[0], rx+rw/2, ry+rh/2-8);
+    ctx.fillStyle='rgba(255,255,255,.5)'; ctx.font=`${Math.min(10,rw/10)}px Sora,sans-serif`;
+    ctx.fillText(lines[1], rx+rw/2, ry+rh/2+8);
+  });
+  // Glove icon marker
+  ctx.fillStyle='#fff'; ctx.font='18px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('🧤', W*.28, H*.28);
+  // Legend band at bottom
+  ctx.fillStyle='rgba(0,0,0,.4)'; ctx.fillRect(0,H-20,W,20);
+  ctx.fillStyle='rgba(255,255,255,.4)'; ctx.font='9px Sora,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Tap zone for detailed reading • Last scanned: 10 min ago', W/2, H-6);
+}
+
+// ═══════════════════════════════════
+// LIVE DATA SIMULATION
+// ═══════════════════════════════════
+function simulateLiveData() {
+  const moistEl = document.getElementById('m-moist');
+  const phEl    = document.getElementById('m-ph');
+  const tempEl  = document.getElementById('m-temp');
+  if (!moistEl) return;
+  // Small random fluctuations to simulate live sensor
+  const moist = 68 + (Math.random()-0.5)*2;
+  const ph    = 6.8 + (Math.random()-0.5)*0.05;
+  const temp  = 24.2 + (Math.random()-0.5)*0.3;
+  moistEl.textContent = moist.toFixed(0);
+  phEl.textContent    = ph.toFixed(1);
+  tempEl.textContent  = temp.toFixed(1);
+}
+setInterval(simulateLiveData, 5000);
+
+// ═══════════════════════════════════
+// CHART TAB SWITCHING
+// ═══════════════════════════════════
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('chart-tab')) {
+    const tabs = e.target.closest('.history-chart').querySelectorAll('.chart-tab');
+    tabs.forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+  }
+  if (e.target.classList.contains('toggle')) {
+    e.target.classList.toggle('on');
+  }
+});
+</script>
+</body>
+</html>
