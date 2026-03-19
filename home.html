@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AgriSense Glove — Touch the Soil. Know Everything.</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b1408; --deep:#111c0d; --dark:#162012; --mid:#1d2c17; --card:#1b2814;
+  --forest:#2c4e1e; --leaf:#3d7226; --sprout:#54a032; --glow:#78cc50; --lime:#a8e060;
+  --mist:#c8e8a8; --cream:#f0ecd8; --amber:#d4901a; --soil:#7a4a1e;
+  --border:rgba(84,160,50,.15); --bordhi:rgba(84,160,50,.3);
+  --text:#e8f0d8; --sub:rgba(200,232,168,.55);
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'Plus Jakarta Sans',sans-serif;
+  --hindi:'Noto Sans Devanagari','Plus Jakarta Sans',sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--text);font-family:var(--sans);overflow-x:hidden}
+::selection{background:rgba(120,204,80,.25)}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:var(--forest);border-radius:2px}
+
+/* ── UTILS ── */
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+.serif{font-family:var(--serif)}
+.hindi{font-family:var(--hindi)}
+.tag{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:20px;background:rgba(84,160,50,.1);border:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--glow)}
+.tag-dot{width:6px;height:6px;border-radius:50%;background:var(--glow);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:8px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;transition:all .25s;text-decoration:none;border:none}
+.btn-g{background:linear-gradient(135deg,var(--sprout),var(--glow));color:#0b1408;box-shadow:0 4px 20px rgba(120,204,80,.28)}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(120,204,80,.45)}
+.btn-o{background:transparent;color:var(--glow);border:1.5px solid var(--bordhi)}
+.btn-o:hover{background:rgba(84,160,50,.1);border-color:var(--glow)}
+.btn-d{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.btn-d:hover{background:var(--mid);border-color:var(--bordhi)}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.on{opacity:1;transform:translateY(0)}
+.rl{opacity:0;transform:translateX(-36px);transition:opacity .8s ease,transform .8s ease}
+.rr{opacity:0;transform:translateX(36px);transition:opacity .8s ease,transform .8s ease}
+.rl.on,.rr.on{opacity:1;transform:translateX(0)}
+.section-tag{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--glow);margin-bottom:12px}
+.section-h{font-family:var(--serif);font-size:clamp(30px,4vw,50px);line-height:1.12;letter-spacing:-.3px;color:var(--cream);margin-bottom:18px}
+.section-h em{font-style:italic;color:var(--glow)}
+.section-p{font-size:17px;line-height:1.75;color:var(--sub);font-weight:300}
+
+/* ── LANG BAR ── */
+#lb{background:var(--mid);border-bottom:1px solid var(--border);padding:6px 0;position:sticky;top:0;z-index:200}
+.lb-inner{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.lp{display:flex;gap:4px;flex-wrap:wrap}
+.lpill{padding:3px 11px;border-radius:14px;font-size:11px;font-weight:500;background:rgba(84,160,50,.08);border:1px solid var(--border);color:var(--sub);cursor:pointer;transition:all .18s;white-space:nowrap}
+.lpill.on,.lpill:hover{background:rgba(84,160,50,.2);border-color:var(--glow);color:var(--glow)}
+.lb-note{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:5px}
+
+/* ── NAV ── */
+#nav{position:sticky;top:33px;z-index:190;transition:background .3s,box-shadow .3s}
+#nav.sc{background:rgba(11,20,8,.93);backdrop-filter:blur(18px);box-shadow:0 4px 24px rgba(0,0,0,.4);border-bottom:1px solid var(--border)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;max-width:1100px;margin:0 auto}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-ic{width:36px;height:36px;background:linear-gradient(135deg,var(--leaf),var(--glow));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.nav-logo-tx{font-family:var(--serif);font-size:20px;color:var(--text)}
+.nav-links{display:flex;align-items:center;gap:30px}
+.nav-links a{color:var(--sub);font-size:14px;font-weight:500;text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--glow)}
+#mbt{display:none;background:none;border:1px solid var(--border);border-radius:7px;color:var(--sub);width:38px;height:38px;font-size:18px;cursor:pointer;align-items:center;justify-content:center;transition:all .2s}
+#mbt:hover{border-color:var(--glow);color:var(--glow)}
+#mm{display:none;flex-direction:column;background:rgba(11,20,8,.97);backdrop-filter:blur(18px);border-top:1px solid var(--border);padding:16px 24px 24px}
+#mm.op{display:flex}
+#mm a{color:var(--sub);font-size:16px;font-weight:500;text-decoration:none;padding:12px 0;border-bottom:1px solid rgba(84,160,50,.07);transition:color .2s}
+#mm a:hover{color:var(--glow)}
+#mm .mb{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+
+/* ── HERO ── */
+#hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:80px 0 60px}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 72% 50%,rgba(84,160,50,.08) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 18% 80%,rgba(120,204,80,.05) 0%,transparent 60%),linear-gradient(180deg,var(--ink) 0%,#0d180a 100%)}
+.hero-bg::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");opacity:.45;pointer-events:none}
+.hero-ring{position:absolute;border-radius:50%;border:1px solid rgba(84,160,50,.07);pointer-events:none}
+.hr1{width:620px;height:620px;right:-200px;top:-160px}
+.hr2{width:420px;height:420px;right:-80px;top:-50px;border-color:rgba(84,160,50,.04)}
+.hr3{width:840px;height:840px;right:-310px;top:-260px;border-color:rgba(84,160,50,.025)}
+.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.hero-text{padding:20px 0}
+.hero-h{font-family:var(--serif);font-size:clamp(40px,5.5vw,70px);line-height:1.08;letter-spacing:-.5px;margin-bottom:20px;color:var(--cream)}
+.hero-h em{font-style:italic;color:var(--glow)}
+.hero-p{font-size:18px;line-height:1.72;color:var(--sub);max-width:460px;margin-bottom:34px;font-weight:300}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:42px}
+.hero-stats{display:flex;gap:32px;flex-wrap:wrap}
+.hs-num{font-family:var(--serif);font-size:34px;color:var(--glow);line-height:1}
+.hs-lbl{font-size:12px;color:var(--sub);margin-top:3px}
+.hero-vis{position:relative;display:flex;justify-content:center;align-items:center}
+.glove-wrap{position:relative;width:380px;height:490px}
+.glove-glow{position:absolute;inset:-60px;background:radial-gradient(ellipse at center,rgba(84,160,50,.18) 0%,transparent 65%);animation:gp 4s ease-in-out infinite}
+@keyframes gp{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+.fl{position:absolute;display:flex;align-items:center;gap:8px;background:rgba(11,20,8,.9);border:1px solid var(--border);border-radius:10px;padding:8px 12px;backdrop-filter:blur(8px);animation:flt 3s ease-in-out infinite;white-space:nowrap}
+.fl .fd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fl .ft{font-size:12px;font-weight:600}
+.fl .fv{font-size:11px;color:var(--sub)}
+.f1{top:58px;left:-28px;animation-delay:0s}
+.f2{top:162px;right:-18px;animation-delay:.8s}
+.f3{top:272px;left:-18px;animation-delay:1.4s}
+.f4{top:366px;right:-10px;animation-delay:2s}
+@keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ── MARQUEE ── */
+.strip{background:linear-gradient(90deg,var(--sprout),var(--glow),var(--lime),var(--glow),var(--sprout));background-size:200% 100%;animation:shimmer 5s linear infinite;padding:14px 0;overflow:hidden}
+@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+.strip-in{display:flex;gap:48px;animation:marq 18s linear infinite;width:max-content}
+.si-item{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.si-item span{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:.3px}
+@keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── PROBLEM ── */
+#problem{padding:100px 0;background:var(--deep);position:relative}
+#problem::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.prob-stats{display:flex;flex-direction:column;gap:14px}
+.ps{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:rgba(220,80,40,.06);border:1px solid rgba(220,80,40,.12);border-radius:10px}
+.ps-num{font-family:var(--serif);font-size:30px;color:#f07050;line-height:1;flex-shrink:0;min-width:56px}
+.ps-lbl{font-size:11px;color:rgba(240,112,80,.7);font-weight:600;margin-bottom:2px}
+.ps-tx{font-size:13px;color:var(--sub);line-height:1.5}
+
+/* ── PRODUCT ── */
+#product{padding:100px 0;background:linear-gradient(180deg,var(--ink) 0%,var(--deep) 100%)}
+.prod-head{text-align:center;margin-bottom:60px}
+.prod-grid{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:28px;align-items:start}
+.spec-list{display:flex;flex-direction:column;gap:12px}
+.spec-item{display:flex;align-items:flex-start;gap:14px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;transition:all .25s;cursor:default}
+.spec-item:hover{border-color:var(--bordhi);transform:translateX(-4px)}
+.spec-item.sr:hover{transform:translateX(4px)}
+.spec-ic{font-size:22px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(84,160,50,.1);border-radius:10px;flex-shrink:0}
+.spec-nm{font-size:13px;font-weight:600;margin-bottom:3px}
+.spec-ds{font-size:11px;color:var(--sub);line-height:1.5}
+.glove-mid{display:flex;flex-direction:column;align-items:center;gap:14px}
+.sbadge{position:absolute;padding:5px 13px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid}
+.sb-t{top:-10px;left:50%;transform:translateX(-50%);background:rgba(84,160,50,.15);border-color:var(--sprout);color:var(--glow)}
+.sb-l{left:-14px;top:38%;background:rgba(58,138,204,.12);border-color:rgba(58,138,204,.4);color:#6ab8f0}
+.sb-r{right:-14px;top:55%;background:rgba(232,160,32,.1);border-color:rgba(232,160,32,.4);color:var(--amber)}
+.tech-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.tc{padding:4px 11px;background:rgba(84,160,50,.08);border:1px solid var(--border);border-radius:20px;font-size:10px;color:var(--sub);font-weight:500}
+
+/* ── HOW ── */
+#how{padding:100px 0;background:var(--deep)}
+.how-head{text-align:center;margin-bottom:60px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.step{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px 26px;position:relative;overflow:hidden;transition:all .3s}
+.step:hover{border-color:var(--bordhi);transform:translateY(-6px);box-shadow:0 20px 48px rgba(0,0,0,.4)}
+.step::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--leaf),var(--glow))}
+.step-n{font-family:var(--serif);font-size:54px;color:rgba(120,204,80,.09);line-height:1;margin-bottom:14px}
+.step-ic{font-size:34px;margin-bottom:14px}
+.step-t{font-size:19px;font-weight:700;margin-bottom:9px}
+.step-d{font-size:14px;color:var(--sub);line-height:1.7}
+
+/* ── FEATURES ── */
+#features{padding:100px 0;background:var(--ink)}
+.feat-head{text-align:center;margin-bottom:60px}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.fc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;transition:all .3s}
+.fc:hover{border-color:var(--bordhi);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.fc.big{background:linear-gradient(135deg,rgba(84,160,50,.1),rgba(61,114,38,.07));border-color:var(--bordhi);grid-column:span 2}
+.fc-ic{font-size:30px;margin-bottom:14px}
+.fc-t{font-size:16px;font-weight:700;margin-bottom:7px}
+.fc-d{font-size:13px;color:var(--sub);line-height:1.65}
+.feat-langs{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}
+.fl-tag{padding:3px 10px;background:rgba(84,160,50,.1);border:1px solid var(--border);border-radius:12px;font-size:10px;color:var(--glow)}
+
+/* ── NUMBERS ── */
+#numbers{padding:80px 0;background:linear-gradient(135deg,var(--forest),var(--leaf))}
+.num-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center}
+.num-big{font-family:var(--serif);font-size:clamp(36px,5vw,58px);color:var(--cream);line-height:1;margin-bottom:8px}
+.num-lbl{font-size:14px;color:rgba(240,240,210,.68);line-height:1.4}
+
+/* ── APP ── */
+#app{padding:100px 0;background:var(--deep);position:relative;overflow:hidden}
+#app::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 50% 80% at 80% 50%,rgba(84,160,50,.06) 0%,transparent 70%)}
+.app-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1}
+.app-screens{display:flex;gap:14px;justify-content:center;align-items:flex-end}
+.app-scr{border-radius:20px;overflow:hidden;border:2px solid var(--border);box-shadow:0 24px 48px rgba(0,0,0,.5)}
+.dl-btns{display:flex;flex-direction:column;gap:10px;margin-top:28px}
+.dl-row{display:flex;gap:10px}
+.dl-btn{display:flex;align-items:center;gap:13px;padding:13px 18px;background:var(--card);border:1px solid var(--border);border-radius:11px;text-decoration:none;transition:all .25s;cursor:pointer;flex:1}
+.dl-btn:hover{border-color:var(--glow);background:rgba(84,160,50,.08);transform:translateX(3px)}
+.dl-ic{font-size:26px}
+.dl-sub{font-size:10px;color:var(--sub)}
+.dl-nm{font-size:15px;font-weight:700;color:var(--text)}
+
+/* ── TESTIMONIALS ── */
+#testimonials{padding:100px 0;background:var(--ink)}
+.test-head{text-align:center;margin-bottom:52px}
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tc2{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;transition:all .3s}
+.tc2:hover{border-color:var(--bordhi)}
+.tc2-stars{color:var(--amber);font-size:13px;margin-bottom:14px;letter-spacing:2px}
+.tc2-q{font-size:14px;line-height:1.75;color:var(--text);margin-bottom:12px;font-style:italic}
+.tc2-qn{font-size:13px;line-height:1.7;color:var(--sub);margin-bottom:18px;font-family:var(--hindi)}
+.tc2-auth{display:flex;align-items:center;gap:10px}
+.tc2-av{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(84,160,50,.14);flex-shrink:0}
+.tc2-nm{font-weight:700;font-size:13px}
+.tc2-loc{font-size:11px;color:var(--sub);margin-top:1px}
+
+/* ── PRESS ── */
+#press{padding:58px 0;background:var(--deep);border-top:1px solid var(--border)}
+.press-lbl{text-align:center;font-size:11px;color:var(--sub);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;margin-bottom:26px}
+.press-logos{display:flex;gap:28px;justify-content:center;align-items:center;flex-wrap:wrap}
+.pi{padding:9px 18px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:7px;font-size:13px;font-weight:700;color:rgba(200,232,168,.3);letter-spacing:.5px;transition:all .2s;cursor:default}
+.pi:hover{color:var(--sub);background:rgba(255,255,255,.06)}
+
+/* ── FAQ ── */
+#faq{padding:100px 0;background:var(--ink)}
+.faq-head{text-align:center;margin-bottom:52px}
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:900px;margin:0 auto}
+.fi{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden}
+.fq{padding:17px 19px;font-size:14px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:color .2s}
+.fq:hover{color:var(--glow)}
+.fq::after{content:'＋';font-size:17px;color:var(--sub);flex-shrink:0;transition:transform .3s}
+.fi.op .fq::after{transform:rotate(45deg);color:var(--glow)}
+.fa{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;font-size:13px;color:var(--sub);line-height:1.7}
+.fi.op .fa{max-height:200px;padding:0 19px 16px}
+
+/* ── CTA ── */
+#cta{padding:100px 0;background:var(--deep);position:relative;overflow:hidden}
+#cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(84,160,50,.1) 0%,transparent 70%)}
+.cta-in{text-align:center;position:relative;z-index:1;max-width:680px;margin:0 auto}
+.cta-h{font-family:var(--serif);font-size:clamp(32px,5vw,58px);line-height:1.12;color:var(--cream);margin-bottom:14px;letter-spacing:-.3px}
+.cta-h em{font-style:italic;color:var(--glow)}
+.cta-p{font-size:18px;color:var(--sub);margin-bottom:34px;font-weight:300;line-height:1.6}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.cta-note{margin-top:18px;font-size:12px;color:rgba(200,232,168,.3)}
+
+/* ── FOOTER ── */
+footer{background:var(--mid);border-top:1px solid var(--border);padding:58px 0 28px}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;margin-bottom:44px}
+.foot-logo{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.foot-logo-ic{width:30px;height:30px;background:linear-gradient(135deg,var(--leaf),var(--glow));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.foot-logo-tx{font-family:var(--serif);font-size:17px;color:var(--text)}
+.foot-tg{font-size:13px;color:var(--sub);line-height:1.6;max-width:250px;margin-bottom:18px}
+.soc{display:flex;gap:7px}
+.sb{width:34px;height:34px;background:rgba(84,160,50,.09);border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all .2s;text-decoration:none}
+.sb:hover{background:rgba(84,160,50,.2);border-color:var(--glow)}
+.fc-t2{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--glow);margin-bottom:14px}
+.flinks{display:flex;flex-direction:column;gap:9px}
+.flinks a{font-size:13px;color:var(--sub);text-decoration:none;transition:color .2s}
+.flinks a:hover{color:var(--text)}
+.foot-bot{border-top:1px solid var(--border);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.foot-copy{font-size:12px;color:rgba(200,232,168,.28)}
+.foot-leg{display:flex;gap:18px}
+.foot-leg a{font-size:12px;color:rgba(200,232,168,.28);text-decoration:none;transition:color .2s}
+.foot-leg a:hover{color:var(--sub)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:920px){
+  .hero-grid{grid-template-columns:1fr;text-align:center;gap:36px}
+  .hero-vis{display:none}
+  .hero-btns{justify-content:center}
+  .hero-stats{justify-content:center}
+  .prob-grid{grid-template-columns:1fr;gap:36px}
+  .prod-grid{grid-template-columns:1fr}
+  .glove-mid{display:none}
+  .spec-list{flex-direction:row;flex-wrap:wrap}
+  .spec-item{flex:1;min-width:180px}
+  .steps{grid-template-columns:1fr;gap:14px}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .fc.big{grid-column:span 1}
+  .num-grid{grid-template-columns:1fr 1fr;gap:22px}
+  .app-grid{grid-template-columns:1fr;gap:36px}
+  .app-screens{display:none}
+  .test-grid{grid-template-columns:1fr}
+  .faq-grid{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr 1fr;gap:28px}
+  .nav-links,.nav-cta .btn-g{display:none}
+  #mbt{display:flex}
+}
+@media(max-width:560px){
+  .feat-grid{grid-template-columns:1fr}
+  .num-grid{grid-template-columns:1fr 1fr}
+  .foot-grid{grid-template-columns:1fr;gap:20px}
+  .foot-bot{flex-direction:column;text-align:center}
+  .lp{justify-content:center}
+  .lb-note{display:none}
+  .dl-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- LANG BAR -->
+<div id="lb">
+  <div class="lb-inner container">
+    <div class="lb-note">🌐 Choose your language</div>
+    <div class="lp">
+      <button class="lpill on" onclick="setL('en')">English</button>
+      <button class="lpill" onclick="setL('hi')">हिन्दी</button>
+      <button class="lpill" onclick="setL('mr')">मराठी</button>
+      <button class="lpill" onclick="setL('pa')">ਪੰਜਾਬੀ</button>
+      <button class="lpill" onclick="setL('ta')">தமிழ்</button>
+      <button class="lpill" onclick="setL('te')">తెలుగు</button>
+      <button class="lpill" onclick="setL('kn')">ಕನ್ನಡ</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-in">
+    <a class="nav-logo" href="#">
+      <div class="nav-logo-ic">🌱</div>
+      <div class="nav-logo-tx">AgriSense</div>
+    </a>
+    <div class="nav-links">
+      <a href="#product">Product</a>
+      <a href="#how">How It Works</a>
+      <a href="#features">Features</a>
+      <a href="#app">Download App</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-cta" style="display:flex;gap:10px;align-items:center">
+      <a href="#app" class="btn btn-g" style="padding:10px 20px;font-size:14px" data-k="nav-cta">Download Free</a>
+      <button id="mbt" onclick="toggleMM()">☰</button>
+    </div>
+  </div>
+  <div id="mm">
+    <a href="#product" onclick="toggleMM()">Product</a>
+    <a href="#how" onclick="toggleMM()">How It Works</a>
+    <a href="#features" onclick="toggleMM()">Features</a>
+    <a href="#app" onclick="toggleMM()">Download App</a>
+    <a href="#faq" onclick="toggleMM()">FAQ</a>
+    <div class="mb">
+      <a href="#app" class="btn btn-g" style="justify-content:center">Download Free App</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-ring hr1"></div>
+    <div class="hero-ring hr2"></div>
+    <div class="hero-ring hr3"></div>
+  </div>
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div style="margin-bottom:22px" class="reveal">
+          <div class="tag"><span class="tag-dot"></span><span data-k="h-tag">India's First Smart Farming Glove</span></div>
+        </div>
+        <h1 class="hero-h reveal" style="animation-delay:.1s">
+          <span data-k="h-h1">Touch the soil.</span><br>
+          <em data-k="h-h2">Know everything.</em>
+        </h1>
+        <p class="hero-p reveal" style="animation-delay:.2s" data-k="h-p">
+          The AgriSense Glove reads soil moisture, nutrients, pH and temperature the moment your fingers touch the earth — giving every Indian farmer the power of a laboratory in their hands.
+        </p>
+        <div class="hero-btns reveal" style="animation-delay:.28s">
+          <a href="#app" class="btn btn-g" data-k="h-b1">📱 Download App Free</a>
+          <a href="#product" class="btn btn-o" data-k="h-b2">Explore the Glove →</a>
+        </div>
+        <div class="hero-stats reveal" style="animation-delay:.36s">
+          <div><div class="hs-num">40%</div><div class="hs-lbl" data-k="hs1">Less water used</div></div>
+          <div><div class="hs-num">25%</div><div class="hs-lbl" data-k="hs2">Higher yield</div></div>
+          <div><div class="hs-num">₹900</div><div class="hs-lbl" data-k="hs3">Starting price</div></div>
+        </div>
+      </div>
+      <div class="hero-vis reveal" style="animation-delay:.18s">
+        <div class="glove-wrap">
+          <div class="glove-glow"></div>
+          <canvas id="hg" width="380" height="490"></canvas>
+          <div class="fl f1"><div class="fd" style="background:#6ab8f0"></div><div><div class="ft">Moisture</div><div class="fv">68% · Adequate</div></div></div>
+          <div class="fl f2"><div class="fd" style="background:#ffaa44"></div><div><div class="ft">NPK</div><div class="fv">N:LOW — apply urea</div></div></div>
+          <div class="fl f3"><div class="fd" style="background:#44ddbb"></div><div><div class="ft">pH Level</div><div class="fv">6.8 · Optimal</div></div></div>
+          <div class="fl f4"><div class="fd" style="background:#ff6644"></div><div><div class="ft">Soil Temp</div><div class="fv">24.2°C · Good</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="strip">
+  <div class="strip-in">
+    <div class="si-item"><span>💧</span><span>MOISTURE SENSING</span></div>
+    <div class="si-item"><span>🌿</span><span>NPK NUTRIENTS</span></div>
+    <div class="si-item"><span>⚗️</span><span>pH DETECTION</span></div>
+    <div class="si-item"><span>🌡️</span><span>SOIL TEMPERATURE</span></div>
+    <div class="si-item"><span>🎙️</span><span>VOICE IN HINDI</span></div>
+    <div class="si-item"><span>🤖</span><span>AI ADVISOR</span></div>
+    <div class="si-item"><span>☀️</span><span>SOLAR POWERED</span></div>
+    <div class="si-item"><span>📡</span><span>SMS ALERTS</span></div>
+    <div class="si-item"><span>🧤</span><span>WEARABLE GLOVE</span></div>
+    <div class="si-item"><span>💧</span><span>MOISTURE SENSING</span></div>
+    <div class="si-item"><span>🌿</span><span>NPK NUTRIENTS</span></div>
+    <div class="si-item"><span>⚗️</span><span>pH DETECTION</span></div>
+    <div class="si-item"><span>🌡️</span><span>SOIL TEMPERATURE</span></div>
+    <div class="si-item"><span>🎙️</span><span>VOICE IN HINDI</span></div>
+    <div class="si-item"><span>🤖</span><span>AI ADVISOR</span></div>
+    <div class="si-item"><span>☀️</span><span>SOLAR POWERED</span></div>
+    <div class="si-item"><span>📡</span><span>SMS ALERTS</span></div>
+    <div class="si-item"><span>🧤</span><span>WEARABLE GLOVE</span></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="container">
+    <div class="prob-grid">
+      <div class="rl">
+        <div class="section-tag" data-k="pr-tag">The Problem We Solve</div>
+        <h2 class="section-h" data-k="pr-h">Indian farmers deserve <em>better tools.</em></h2>
+        <p class="section-p" data-k="pr-p" style="margin-bottom:28px">For generations, soil testing meant expensive lab kits, 2-week waits, and complicated numbers. 500 million smallholder farmers make critical crop decisions based on guesswork every single day.</p>
+        <a href="#product" class="btn btn-o" data-k="pr-cta">See our solution →</a>
+      </div>
+      <div class="prob-stats rr">
+        <div class="ps">
+          <div class="ps-num">70%</div>
+          <div><div class="ps-lbl">Water Crisis</div><div class="ps-tx">of India's agricultural water is wasted from over-irrigation. Farmers can't tell when soil has enough moisture.</div></div>
+        </div>
+        <div class="ps">
+          <div class="ps-num">30%</div>
+          <div><div class="ps-lbl">Soil Degradation</div><div class="ps-tx">of India's cultivable land is degraded from over-fertilisation — applied blindly without real soil data.</div></div>
+        </div>
+        <div class="ps">
+          <div class="ps-num">2 wks</div>
+          <div><div class="ps-lbl">Lab Testing Delay</div><div class="ps-tx">The average wait for soil test results. By then, planting decisions have already been made incorrectly.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT -->
+<section id="product">
+  <div class="container">
+    <div class="prod-head reveal">
+      <div class="section-tag">The AgriSense Glove</div>
+      <h2 class="section-h">A laboratory on <em>every finger.</em></h2>
+      <p class="section-p" style="max-width:520px;margin:0 auto">Five precision sensors embedded into a durable, waterproof glove. Real answers in 5 seconds. No lab. No delay. No expertise required.</p>
+    </div>
+    <div class="prod-grid">
+      <div class="spec-list rl">
+        <div class="spec-item">
+          <div class="spec-ic">💧</div>
+          <div><div class="spec-nm">Capacitive Moisture Sensor</div><div class="spec-ds">Reads soil water content to ±2% accuracy on contact. Know instantly whether to irrigate.</div></div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-ic">🌿</div>
+          <div><div class="spec-nm">NIR Spectral NPK Sensor</div><div class="spec-ds">Near-infrared light gives Nitrogen, Phosphorus and Potassium readings in under 3 seconds.</div></div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-ic">⚗️</div>
+          <div><div class="spec-nm">ISFET pH Electrode</div><div class="spec-ds">Thumb-mounted micro-electrode reads soil acidity instantly — critical for every fertiliser decision.</div></div>
+        </div>
+      </div>
+      <!-- CENTER GLOVE -->
+      <div class="glove-mid reveal" style="animation-delay:.12s">
+        <div style="position:relative">
+          <canvas id="sg" width="260" height="340"></canvas>
+          <div class="sbadge sb-t">IP67 Waterproof</div>
+          <div class="sbadge sb-l" style="font-size:10px">BLE 5.0</div>
+          <div class="sbadge sb-r" style="font-size:10px">Solar Strip</div>
+        </div>
+        <div class="tech-chips">
+          <span class="tc">ARM Cortex-M0+</span><span class="tc">4G / SMS</span>
+          <span class="tc">~180g</span><span class="tc">8hr battery</span><span class="tc">LED feedback</span>
+        </div>
+        <a href="#app" class="btn btn-g" style="font-size:14px;margin-top:4px">Order Yours — ₹900</a>
+      </div>
+      <div class="spec-list rr">
+        <div class="spec-item sr">
+          <div class="spec-ic">🌡️</div>
+          <div><div class="spec-nm">Thermistor Temperature Sensor</div><div class="spec-ds">Soil temperature reading guides crop scheduling, germination timing and pest risk alerts.</div></div>
+        </div>
+        <div class="spec-item sr">
+          <div class="spec-ic">💡</div>
+          <div><div class="spec-nm">RGB LED Status Strip</div><div class="spec-ds">Instant colour signal across the glove back. Green = good. Red = dry. Amber = nutrient low. No phone needed.</div></div>
+        </div>
+        <div class="spec-item sr">
+          <div class="spec-ic">☀️</div>
+          <div><div class="spec-nm">Flexible Solar Panel</div><div class="spec-ds">Solar strip on the back of the hand trickle-charges the battery during field hours. Works all day.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <div class="how-head reveal">
+      <div class="section-tag">How It Works</div>
+      <h2 class="section-h">Three steps. <em>Complete picture.</em></h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-n">01</div>
+        <div class="step-ic">🧤</div>
+        <div class="step-t" data-k="st1">Put on the Glove</div>
+        <div class="step-d" data-k="sd1">Slip on your AgriSense Glove before heading to the field. It looks and works like a normal farming glove. Auto-connects to your phone via Bluetooth. No buttons, no setup, no complexity.</div>
+      </div>
+      <div class="step reveal" style="animation-delay:.14s">
+        <div class="step-n">02</div>
+        <div class="step-ic">🌱</div>
+        <div class="step-t" data-k="st2">Touch Your Soil</div>
+        <div class="step-d" data-k="sd2">Press your fingers into the soil as you normally would while working your field. Five sensors activate instantly on contact — reading moisture, NPK, pH, and temperature simultaneously in under 5 seconds.</div>
+      </div>
+      <div class="step reveal" style="animation-delay:.28s">
+        <div class="step-n">03</div>
+        <div class="step-ic">📊</div>
+        <div class="step-t" data-k="st3">Get Your Answer</div>
+        <div class="step-d" data-k="sd3">The LED strip flashes colour feedback instantly. Your phone shows full readings and AI recommendations. The voice assistant speaks advice in your language: "Apply urea today" or "No irrigation needed — rain in 2 days."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="feat-head reveal">
+      <div class="section-tag">Features</div>
+      <h2 class="section-h">Built for every Indian farmer.</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="fc big reveal">
+        <div class="fc-ic">🎙️</div>
+        <div class="fc-t">Voice Assistant in Your Language</div>
+        <div class="fc-d">Ask the AI advisor anything by voice — in Hindi, Marathi, Punjabi, Tamil, Telugu, Kannada or English. It speaks back with clear, practical advice based on your real-time soil readings. No reading required. No typing needed. Just ask and listen.</div>
+        <div class="feat-langs">
+          <span class="fl-tag">हिन्दी</span><span class="fl-tag">मराठी</span>
+          <span class="fl-tag">ਪੰਜਾਬੀ</span><span class="fl-tag">தமிழ்</span>
+          <span class="fl-tag">తెలుగు</span><span class="fl-tag">ಕನ್ನಡ</span><span class="fl-tag">English</span>
+        </div>
+      </div>
+      <div class="fc reveal" style="animation-delay:.08s">
+        <div class="fc-ic">🤖</div>
+        <div class="fc-t">AI Crop Advisor</div>
+        <div class="fc-d">Powered by advanced AI — gives fertiliser dosage, irrigation timing, harvest estimates and disease warnings based on your actual soil data, crop type and local weather.</div>
+      </div>
+      <div class="fc reveal" style="animation-delay:.12s">
+        <div class="fc-ic">📡</div>
+        <div class="fc-t">Works Without Internet</div>
+        <div class="fc-d">Core sensor readings work fully offline. SMS alerts fire via the 4G module even without smartphone connectivity. Built for rural India's real network conditions.</div>
+      </div>
+      <div class="fc reveal" style="animation-delay:.16s">
+        <div class="fc-ic">🔔</div>
+        <div class="fc-t">Smart Notifications</div>
+        <div class="fc-d">SMS and app alerts when soil needs action — critical NPK drop, drought warning, rain forecast, harvest countdown. Never miss a critical farming window again.</div>
+      </div>
+      <div class="fc reveal" style="animation-delay:.2s">
+        <div class="fc-ic">🗺️</div>
+        <div class="fc-t">Field Health Mapping</div>
+        <div class="fc-d">The app maps every reading by field location. Build a visual health map of your entire land — see which zones need water, nutrients or attention at a glance.</div>
+      </div>
+      <div class="fc reveal" style="animation-delay:.24s">
+        <div class="fc-ic">💰</div>
+        <div class="fc-t">Reduces Costs Significantly</div>
+        <div class="fc-d">Precision data means no over-watering and no over-fertilising. Farmers report 25–40% water savings and 15–25% lower fertiliser costs per season.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS -->
+<section id="numbers">
+  <div class="container">
+    <div class="num-grid">
+      <div class="reveal"><div class="num-big">500M+</div><div class="num-lbl">Smallholder farmers across India who need this</div></div>
+      <div class="reveal" style="animation-delay:.1s"><div class="num-big">5 sec</div><div class="num-lbl">Time to get a complete soil reading from touch</div></div>
+      <div class="reveal" style="animation-delay:.2s"><div class="num-big">40%</div><div class="num-lbl">Average water saving reported by early farmers</div></div>
+      <div class="reveal" style="animation-delay:.3s"><div class="num-big">₹900</div><div class="num-lbl">Starting price — less than one day's farm labour</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- APP DOWNLOAD -->
+<section id="app">
+  <div class="container">
+    <div class="app-grid">
+      <div class="app-screens rl">
+        <canvas id="as1" class="app-scr" width="148" height="288"></canvas>
+        <canvas id="as2" class="app-scr" width="148" height="288" style="margin-bottom:38px"></canvas>
+      </div>
+      <div class="rr">
+        <div class="section-tag">Free App</div>
+        <h2 class="section-h" style="font-size:clamp(26px,4vw,44px)">Your farm dashboard,<br><em>always in your pocket.</em></h2>
+        <p class="section-p">The AgriSense app pairs with your glove to show live soil data, AI recommendations, field maps, crop timers, weather forecasts, and voice alerts — all in your language.</p>
+        <div class="dl-btns">
+          <div class="dl-row">
+            <a href="#" class="dl-btn"><div class="dl-ic">🍎</div><div><div class="dl-sub">Download on the</div><div class="dl-nm">App Store</div></div></a>
+            <a href="#" class="dl-btn"><div class="dl-ic">▶️</div><div><div class="dl-sub">Get it on</div><div class="dl-nm">Google Play</div></div></a>
+          </div>
+          <a href="#" class="dl-btn"><div class="dl-ic">🌐</div><div><div class="dl-sub">Open in browser — no install needed</div><div class="dl-nm">Web App</div></div></a>
+        </div>
+        <div style="margin-top:14px;font-size:13px;color:var(--sub)">✅ 100% free · Works offline · 7 languages · No literacy required</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <div class="test-head reveal">
+      <div class="section-tag">Farmers Love It</div>
+      <h2 class="section-h">Real farmers. <em>Real results.</em></h2>
+    </div>
+    <div class="test-grid">
+      <div class="tc2 reveal">
+        <div class="tc2-stars">★★★★★</div>
+        <div class="tc2-q">"Before AgriSense, I was watering my wheat every 3 days. Now I water only when the glove says so. My water bill dropped nearly half this season."</div>
+        <div class="tc2-qn">"AgriSense से पहले हर तीन दिन सिंचाई करता था। अब ग्लव बताता है कब करनी है। इस सीज़न पानी का खर्च आधा हो गया।"</div>
+        <div class="tc2-auth"><div class="tc2-av">👨‍🌾</div><div><div class="tc2-nm">Ram Prasad Singh</div><div class="tc2-loc">Wheat farmer · Meerut, Uttar Pradesh</div></div></div>
+      </div>
+      <div class="tc2 reveal" style="animation-delay:.1s">
+        <div class="tc2-stars">★★★★★</div>
+        <div class="tc2-q">"The AI speaks in Marathi and tells me exactly what to do. When pH dropped, I added lime and my tomatoes were much better this year."</div>
+        <div class="tc2-qn">"AI मराठीत सांगते काय करायचे. pH कमी होता तेव्हा चुना टाकला — टोमॅटोचे पीक खूप सुधारले."</div>
+        <div class="tc2-auth"><div class="tc2-av">👩‍🌾</div><div><div class="tc2-nm">Sunita Patil</div><div class="tc2-loc">Tomato farmer · Nashik, Maharashtra</div></div></div>
+      </div>
+      <div class="tc2 reveal" style="animation-delay:.2s">
+        <div class="tc2-stars">★★★★★</div>
+        <div class="tc2-q">"My father said soil testing was only for rich farmers. At ₹900 I proved him wrong. My 1-hectare farm now gives 20% more yield."</div>
+        <div class="tc2-qn">"ਮੇਰੇ ਪਿਤਾ ਕਹਿੰਦੇ ਸਨ ਮਿੱਟੀ ਟੈਸਟ ਅਮੀਰਾਂ ਲਈ ਹੈ। ₹900 ਵਿੱਚ ਗਲਤ ਸਾਬਿਤ ਕੀਤਾ। 20% ਵੱਧ ਝਾੜ ਮਿਲਿਆ।"</div>
+        <div class="tc2-auth"><div class="tc2-av">👨‍🌾</div><div><div class="tc2-nm">Gurpreet Singh</div><div class="tc2-loc">Rice farmer · Amritsar, Punjab</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRESS -->
+<section id="press">
+  <div class="container">
+    <div class="press-lbl reveal">As featured in / Recognised by</div>
+    <div class="press-logos reveal" style="animation-delay:.1s">
+      <div class="pi">THE HINDU BUSINESSLINE</div>
+      <div class="pi">KRISHI JAGRAN</div>
+      <div class="pi">TIMES OF INDIA</div>
+      <div class="pi">NASSCOM DEEPTECH</div>
+      <div class="pi">DST INDIA</div>
+      <div class="pi">AGRI INDIA SUMMIT 2025</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="faq-head reveal">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-h">Common questions.</h2>
+    </div>
+    <div class="faq-grid" id="faqg"></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="container">
+    <div class="cta-in reveal">
+      <div class="section-tag" style="display:inline-block;margin-bottom:12px">Start Today</div>
+      <h2 class="cta-h">Your soil has answers.<br><em>Start listening.</em></h2>
+      <p class="cta-p">Join thousands of Indian farmers growing more, spending less and wasting nothing — with the power of the AgriSense Glove.</p>
+      <div class="cta-btns">
+        <a href="#app" class="btn btn-g" style="font-size:16px;padding:16px 32px">📱 Download App Free</a>
+        <a href="#product" class="btn btn-o" style="font-size:16px;padding:16px 32px">Order Glove — ₹900</a>
+      </div>
+      <div class="cta-note">Free app · Works with glove or independently · 7 Indian languages · No literacy required</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-logo"><div class="foot-logo-ic">🌱</div><div class="foot-logo-tx">AgriSense</div></div>
+        <div class="foot-tg">Wearable soil intelligence for India's 500 million farmers. Made in India, built for India.</div>
+        <div class="soc">
+          <a class="sb" href="#">🐦</a><a class="sb" href="#">📘</a>
+          <a class="sb" href="#">📸</a><a class="sb" href="#">▶️</a>
+        </div>
+      </div>
+      <div>
+        <div class="fc-t2">Product</div>
+        <div class="flinks">
+          <a href="#product">AgriSense Glove</a>
+          <a href="#features">Features</a>
+          <a href="#app">Download App</a>
+          <a href="#">Order Now</a>
+          <a href="#">Pricing</a>
+        </div>
+      </div>
+      <div>
+        <div class="fc-t2">Company</div>
+        <div class="flinks">
+          <a href="#">About Us</a>
+          <a href="#">Our Mission</a>
+          <a href="#">For NGOs &amp; Govt</a>
+          <a href="#">Press &amp; Media</a>
+          <a href="#">Careers</a>
+        </div>
+      </div>
+      <div>
+        <div class="fc-t2">Support</div>
+        <div class="flinks">
+          <a href="#faq">FAQ</a>
+          <a href="#">User Guide</a>
+          <a href="#">Contact Us</a>
+          <a href="#">1800-XXX-XXXX (Free)</a>
+          <a href="#">WhatsApp Support</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <div class="foot-copy">© 2025 AgriSense Technologies Pvt. Ltd. · Made with ❤️ for Indian Farmers</div>
+      <div class="foot-leg">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Refund Policy</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── LANG ──
+const TT={
+  en:{'h-tag':"India's First Smart Farming Glove",'h-h1':'Touch the soil.','h-h2':'Know everything.','h-p':"The AgriSense Glove reads soil moisture, nutrients, pH and temperature the moment your fingers touch the earth — giving every Indian farmer the power of a laboratory in their hands.",'h-b1':'📱 Download App Free','h-b2':'Explore the Glove →','hs1':'Less water used','hs2':'Higher yield','hs3':'Starting price','nav-cta':'Download Free'},
+  hi:{'h-tag':'भारत का पहला स्मार्ट किसान दस्ताना','h-h1':'मिट्टी छुओ।','h-h2':'सब जान जाओ।','h-p':'AgriSense ग्लव मिट्टी की नमी, पोषण, pH और तापमान एक पल में बता देता है — हर किसान के हाथ में एक प्रयोगशाला।','h-b1':'📱 मुफ़्त ऐप डाउनलोड करें','h-b2':'ग्लव देखें →','hs1':'पानी की बचत','hs2':'उत्पादन में वृद्धि','hs3':'शुरुआती कीमत','nav-cta':'मुफ़्त डाउनलोड'},
+  mr:{'h-tag':'भारतातील पहला स्मार्ट शेती हातमोजा','h-h1':'माती स्पर्श करा.','h-h2':'सर्व जाणा.','h-p':'AgriSense ग्लव्ह तुमच्या मातीतील ओलावा, पोषण, pH आणि तापमान तत्काळ सांगतो — प्रत्येक शेतकऱ्याच्या हातात एक प्रयोगशाळा.','h-b1':'📱 मोफत अॅप डाउनलोड करा','h-b2':'ग्लव्ह पहा →','hs1':'पाण्याची बचत','hs2':'उत्पादनात वाढ','hs3':'सुरुवातीची किंमत','nav-cta':'मोफत डाउनलोड'},
+  pa:{'h-tag':'ਭਾਰਤ ਦਾ ਪਹਿਲਾ ਸਮਾਰਟ ਖੇਤੀ ਦਸਤਾਨਾ','h-h1':'ਮਿੱਟੀ ਛੂਹੋ।','h-h2':'ਸਭ ਜਾਣੋ।','h-p':'AgriSense ਗਲਵ ਮਿੱਟੀ ਦੀ ਨਮੀ, ਪੋਸ਼ਣ, pH ਅਤੇ ਤਾਪਮਾਨ ਇੱਕ ਪਲ ਵਿੱਚ ਦੱਸਦਾ ਹੈ।','h-b1':'📱 ਮੁਫ਼ਤ ਐਪ ਡਾਊਨਲੋਡ ਕਰੋ','h-b2':'ਗਲਵ ਦੇਖੋ →','hs1':'ਪਾਣੀ ਦੀ ਬੱਚਤ','hs2':'ਝਾੜ ਵਿੱਚ ਵਾਧਾ','hs3':'ਸ਼ੁਰੂਆਤੀ ਕੀਮਤ','nav-cta':'ਮੁਫ਼ਤ ਡਾਊਨਲੋਡ'}
+};
+function setL(l){
+  document.querySelectorAll('.lpill').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.lpill').forEach(p=>{
+    if((l==='en'&&p.textContent.includes('English'))||(l==='hi'&&p.textContent.includes('हिन्दी'))||(l==='mr'&&p.textContent.includes('मराठी'))||(l==='pa'&&p.textContent.includes('ਪੰਜਾਬੀ'))||(l==='ta'&&p.textContent.includes('தமிழ்'))||(l==='te'&&p.textContent.includes('తెలుగు'))||(l==='kn'&&p.textContent.includes('ಕನ್ನಡ')))p.classList.add('on');
+  });
+  const d=TT[l]||TT.en;
+  document.querySelectorAll('[data-k]').forEach(e=>{if(d[e.dataset.k])e.textContent=d[e.dataset.k];});
+}
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('sc',scrollY>55));
+function toggleMM(){document.getElementById('mm').classList.toggle('op')}
+
+// ── REVEAL ──
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on')}),{threshold:.1});
+document.querySelectorAll('.reveal,.rl,.rr').forEach(el=>obs.observe(el));
+
+// ── FAQ ──
+const FAQS=[
+  {q:'Does the glove work without a smartphone?',a:"Yes! The LED strip on the glove back gives instant colour feedback — green, amber or red — without a phone. The wrist screen also shows live readings. A phone is only needed for AI recommendations and history."},
+  {q:'How durable is the glove on the farm?',a:"The AgriSense Glove is IP67 rated — fully dustproof and handles 30 minutes underwater. Built for daily farm use in mud, water and rough conditions."},
+  {q:'क्या ग्लव हिंदी में बात करता है?',a:'हाँ! आवाज़ सहायक हिंदी, मराठी, पंजाबी, तमिल, तेलुगु और कन्नड़ में जवाब देता है। बस ऐप में अपनी भाषा चुनें।'},
+  {q:'How accurate are the sensor readings?',a:"Moisture: ±2% VWC. pH: ±0.3. Temperature: ±0.5°C. NPK gives relative status (Low/Adequate/High). Readings are directional guides validated against regional soil databases."},
+  {q:'What crops does it support?',a:"Wheat, rice, sugarcane, maize, cotton, tomato, potato, onion and 40+ more. Select your crop in the app and the AI adjusts all thresholds and recommendations automatically."},
+  {q:'How long does the battery last?',a:"8–12 hours of active use. The solar strip extends this by 3–4 hours during daytime field work. USB charging takes approximately 90 minutes."},
+  {q:'Is there a government subsidy?',a:"We are registered under PM-KISAN aligned programmes. Farmers in several states can claim 30–50% subsidy. Contact your local Krishi Vigyan Kendra or see our website for current state-wise details."},
+  {q:'Can I use the app without the glove?',a:"Yes. The app works independently — weather forecasts, crop calendars, AI advisor, field mapping. The glove adds live real-time soil sensing to all of these features."},
+];
+const fg=document.getElementById('faqg');
+FAQS.forEach((f,i)=>{
+  const el=document.createElement('div');
+  el.className='fi reveal'; el.style.animationDelay=(i*.04)+'s';
+  el.innerHTML=`<div class="fq" onclick="this.parentElement.classList.toggle('op')">${f.q}</div><div class="fa">${f.a}</div>`;
+  fg.appendChild(el);
+});
+
+// ── CANVAS HELPERS ──
+function rrc(ctx,x,y,w,h,r,fill,stroke,lw){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||.7;ctx.stroke();}
+}
+
+function drawGlove(id,W,H){
+  const cv=document.getElementById(id);if(!cv)return;
+  const ctx=cv.getContext('2d');ctx.clearRect(0,0,W,H);
+  const mx=W/2,wY=Math.round(H*.08);
+  // ambient glow
+  const gr=ctx.createRadialGradient(mx,H*.5,30,mx,H*.5,Math.min(W,H)*.55);
+  gr.addColorStop(0,'rgba(84,160,50,.12)');gr.addColorStop(1,'rgba(84,160,50,0)');
+  ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
+  const sc=W/380; // scale factor
+  ctx.save();ctx.scale(sc,sc);
+  const mxs=W/(2*sc);
+  // wristband
+  rrc(ctx,mxs-108,wY,216,54,11,'#111','#252525',1.4);
+  rrc(ctx,mxs-103,wY+7,134,40,5,'#020e02','#1a5a1a',.8);
+  ctx.font='6px monospace';ctx.fillStyle='#00cc44';ctx.textBaseline='top';
+  ctx.fillText('MOISTURE  68% ✓',mxs-98,wY+10);
+  ctx.fillStyle='#ffaa00';ctx.fillText('NPK      N:LOW !',mxs-98,wY+19);
+  ctx.fillStyle='#44ddbb';ctx.fillText('pH        6.8  ✓',mxs-98,wY+28);
+  ctx.fillStyle='#00ccff';ctx.fillText('TEMP    24.2°C  ',mxs-98,wY+37);
+  rrc(ctx,mxs+40,wY+7,38,18,3,'#0a1a2a','#1a5a8a',.7);
+  ctx.font='bold 7px sans-serif';ctx.fillStyle='#4499ff';ctx.fillText('BLE 5',mxs+43,wY+19);
+  rrc(ctx,mxs+40,wY+29,38,18,3,'#0a1a0a','#1a5a1a',.7);
+  ctx.fillStyle='#44cc44';ctx.fillText('4G/SMS',mxs+42,wY+41);
+  rrc(ctx,mxs+82,wY+7,40,40,3,'#08080e','#222',.7);
+  ctx.font='5.5px monospace';ctx.fillStyle='#444466';ctx.fillText('ARM',mxs+86,wY+16);ctx.fillText('M0+',mxs+86,wY+24);
+  for(let b=0;b<3;b++)rrc(ctx,mxs+85+b*9,wY+30,8,8,1,b<2?'#33aa44':'#1a4422',null,0);
+  ctx.font='5px monospace';ctx.fillStyle='#33aa44';ctx.fillText('78%',mxs+86,wY+46);
+  // thumb
+  ctx.save();ctx.translate(mxs-110,wY+80);ctx.rotate(-0.25);
+  ctx.beginPath();ctx.moveTo(-11,0);ctx.bezierCurveTo(-14,42,-14,92,-11,134);ctx.quadraticCurveTo(-7,150,0,152);ctx.quadraticCurveTo(7,150,11,134);ctx.bezierCurveTo(14,92,14,42,11,0);ctx.closePath();
+  const tg=ctx.createLinearGradient(-14,0,14,152);tg.addColorStop(0,'#3c5c24');tg.addColorStop(1,'#1a3010');
+  ctx.fillStyle=tg;ctx.fill();ctx.strokeStyle='#3a5a1a';ctx.lineWidth=.8;ctx.stroke();
+  rrc(ctx,-10,52,20,12,4,'#1e3610','#304e18',.4);rrc(ctx,-10,96,20,12,4,'#1a3010','#2c4816',.35);
+  ctx.shadowColor='#cc77ff';ctx.shadowBlur=8;ctx.beginPath();ctx.ellipse(0,142,9,12,0,0,Math.PI*2);
+  const tsg=ctx.createRadialGradient(-3,139,1,0,142,11);tsg.addColorStop(0,'#d0d0d8');tsg.addColorStop(1,'#686878');
+  ctx.fillStyle=tsg;ctx.fill();ctx.strokeStyle='#888';ctx.lineWidth=.5;ctx.stroke();
+  ctx.beginPath();ctx.ellipse(0,142,5,8,0,0,Math.PI*2);ctx.fillStyle='#cc77ff';ctx.fill();ctx.shadowBlur=0;
+  ctx.restore();
+  // palm
+  ctx.beginPath();ctx.moveTo(mxs-102,wY+60);ctx.lineTo(mxs+102,wY+60);ctx.bezierCurveTo(mxs+112,wY+60,mxs+114,wY+67,mxs+114,wY+76);ctx.lineTo(mxs+112,wY+178);ctx.bezierCurveTo(mxs+112,wY+190,mxs+104,wY+196,mxs+92,wY+198);ctx.lineTo(mxs-92,wY+198);ctx.bezierCurveTo(mxs-104,wY+196,mxs-112,wY+190,mxs-112,wY+178);ctx.lineTo(mxs-114,wY+76);ctx.bezierCurveTo(mxs-114,wY+67,mxs-110,wY+60,mxs-102,wY+60);ctx.closePath();
+  const pg=ctx.createLinearGradient(mxs-114,wY+60,mxs+114,wY+198);pg.addColorStop(0,'#3e5e26');pg.addColorStop(.4,'#2e4a1c');pg.addColorStop(1,'#1a2e10');
+  ctx.fillStyle=pg;ctx.fill();ctx.strokeStyle='#3a5a1a';ctx.lineWidth=.9;ctx.stroke();
+  // solar
+  const sx=mxs-60,sy=wY+78,sw=120,sh=66;
+  const sgg=ctx.createLinearGradient(sx,sy,sx+sw,sy);sgg.addColorStop(0,'#0c3b68');sgg.addColorStop(.45,'#1968ae');sgg.addColorStop(1,'#0c3b68');
+  rrc(ctx,sx,sy,sw,sh,4,null,null,0);ctx.fillStyle=sgg;ctx.fill();
+  ctx.strokeStyle='#093060';ctx.lineWidth=.4;
+  for(let i=sx;i<=sx+sw;i+=16){ctx.beginPath();ctx.moveTo(i,sy);ctx.lineTo(i,sy+sh);ctx.stroke();}
+  for(let j=sy;j<=sy+sh;j+=16){ctx.beginPath();ctx.moveTo(sx,j);ctx.lineTo(sx+sw,j);ctx.stroke();}
+  // LEDs
+  rrc(ctx,mxs-86,wY+184,172,14,7,'#070707','#161616',.6);
+  const lc=['#00ff55','#00ee44','#3399ff','#ffaa00','#00ff44','#00ee33','#00cc22'];
+  lc.forEach((c,i)=>{const lx=mxs-72+i*24;ctx.shadowColor=c;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(lx,wY+191,4.5,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();ctx.shadowBlur=0;});
+  // fingers
+  const fD=[{cx:mxs-74,w:32,h:120,col:'#8888ff'},{cx:mxs-24,w:34,h:126,col:'#ffaa44'},{cx:mxs+24,w:34,h:126,col:'#44ddbb'},{cx:mxs+74,w:28,h:116,col:'#ff6644'}];
+  fD.forEach(f=>{
+    const ft=wY+198,fb=ft+f.h;
+    ctx.beginPath();ctx.moveTo(f.cx-f.w/2,ft);ctx.bezierCurveTo(f.cx-f.w/2-2,ft+32,f.cx-f.w/2-2,fb-28,f.cx-f.w/2+2,fb);ctx.quadraticCurveTo(f.cx,fb+8,f.cx+f.w/2-2,fb);ctx.bezierCurveTo(f.cx+f.w/2+2,fb-28,f.cx+f.w/2+2,ft+32,f.cx+f.w/2,ft);ctx.closePath();
+    const fg2=ctx.createLinearGradient(f.cx-f.w/2,ft,f.cx+f.w/2,fb);fg2.addColorStop(0,'#3c5a22');fg2.addColorStop(1,'#1a3010');
+    ctx.fillStyle=fg2;ctx.fill();ctx.strokeStyle='#3a5818';ctx.lineWidth=.7;ctx.stroke();
+    rrc(ctx,f.cx-f.w/2+3,ft+13,f.w-6,13,5,'#1e3610','#304e18',.4);
+    rrc(ctx,f.cx-f.w/2+3,ft+48,f.w-6,11,4,'#1a3010','#2c4816',.35);
+    const sy=fb-3;
+    ctx.beginPath();ctx.ellipse(f.cx,sy,f.w/2-2,8,0,0,Math.PI*2);
+    const mg=ctx.createRadialGradient(f.cx-4,sy-3,1,f.cx,sy,f.w/2);mg.addColorStop(0,'#d4d4dc');mg.addColorStop(1,'#646474');
+    ctx.fillStyle=mg;ctx.fill();ctx.strokeStyle='#888';ctx.lineWidth=.5;ctx.stroke();
+    ctx.shadowColor=f.col;ctx.shadowBlur=12;ctx.beginPath();ctx.ellipse(f.cx,sy,f.w/2-7,5,0,0,Math.PI*2);ctx.fillStyle=f.col;ctx.fill();ctx.shadowBlur=0;
+    ctx.beginPath();ctx.arc(f.cx,sy,2,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  });
+  ctx.restore();
+}
+
+function drawApp(id,type){
+  const cv=document.getElementById(id);if(!cv)return;
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  ctx.fillStyle='#111d0d';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(84,160,50,.14)';ctx.fillRect(0,0,W,20);
+  ctx.font='bold 7px sans-serif';ctx.fillStyle='#44cc55';ctx.textBaseline='middle';ctx.textAlign='center';
+  ctx.fillText('AgriSense',W/2,10);
+  if(type==='d'){
+    ctx.font='bold 10px sans-serif';ctx.fillStyle='#e8f0d8';ctx.textAlign='left';ctx.fillText('Dashboard',10,34);
+    ctx.fillStyle='rgba(58,138,204,.2)';rrc(ctx,6,42,W-12,24,5,null,null,0);ctx.fill();
+    ctx.font='8px sans-serif';ctx.fillStyle='#6ab8f0';ctx.fillText('⛅ 28°C · Meerut, UP',11,58);
+    const ms=[{l:'Moisture',v:'68%',c:'#6ab8f0',y:74},{l:'NPK',v:'N:LOW',c:'#ffaa00',y:110},{l:'pH',v:'6.8',c:'#c088ff',y:146},{l:'Temp',v:'24.2°',c:'#f07050',y:182}];
+    ms.forEach(m=>{
+      rrc(ctx,6,m.y,W-12,28,6,'rgba(28,42,22,.9)','rgba(84,160,50,.18)',.4);
+      ctx.font='6px sans-serif';ctx.fillStyle='rgba(200,232,168,.45)';ctx.fillText(m.l,12,m.y+10);
+      ctx.font='bold 10px sans-serif';ctx.fillStyle=m.c;ctx.fillText(m.v,12,m.y+22);
+    });
+    rrc(ctx,6,218,W-12,34,6,'rgba(155,85,232,.1)','rgba(155,85,232,.22)',.4);
+    ctx.font='6px sans-serif';ctx.fillStyle='#c088ff';ctx.fillText('🤖 AI: Apply urea today',11,231);
+    ctx.fillStyle='rgba(200,200,255,.55)';ctx.fillText('Nitrogen critically low in field',11,242);
+  } else {
+    ctx.font='bold 10px sans-serif';ctx.fillStyle='#e8f0d8';ctx.textAlign='left';ctx.fillText('Sensors',10,34);
+    const ss=[{i:'💧',n:'Moisture',v:'68%',c:'#6ab8f0',b:.68,y:44},{i:'🌿',n:'NPK',v:'N:LOW',c:'#ffaa00',b:.22,y:96},{i:'⚗️',n:'pH Level',v:'6.8',c:'#c088ff',b:.68,y:148},{i:'🌡️',n:'Temp',v:'24.2°C',c:'#f07050',b:.55,y:200}];
+    ss.forEach(s=>{
+      rrc(ctx,6,s.y,W-12,44,6,'rgba(28,42,22,.9)','rgba(84,160,50,.14)',.4);
+      ctx.font='12px sans-serif';ctx.fillText(s.i,11,s.y+20);
+      ctx.font='6.5px sans-serif';ctx.fillStyle='rgba(200,232,168,.45)';ctx.fillText(s.n,32,s.y+13);
+      ctx.font='bold 10px sans-serif';ctx.fillStyle=s.c;ctx.fillText(s.v,32,s.y+25);
+      ctx.fillStyle='rgba(255,255,255,.06)';rrc(ctx,32,s.y+30,W-42,4,2,null,null,0);ctx.fill();
+      ctx.fillStyle=s.c;rrc(ctx,32,s.y+30,(W-42)*s.b,4,2,null,null,0);ctx.fill();
+    });
+  }
+}
+
+window.addEventListener('load',()=>{
+  drawGlove('hg',380,490);
+  drawGlove('sg',260,340);
+  drawApp('as1','d');
+  drawApp('as2','s');
+  // re-observe FAQ items added dynamically
+  document.querySelectorAll('.fi').forEach(el=>obs.observe(el));
+});
+window.addEventListener('resize',()=>{
+  drawGlove('hg',380,490);
+  drawGlove('sg',260,340);
+  drawApp('as1','d');
+  drawApp('as2','s');
+});
+</script>
+</body>
+</html>
